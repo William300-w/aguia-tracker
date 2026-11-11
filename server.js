@@ -11,10 +11,23 @@ const fs = require('fs');
 const crypto = require('crypto');
 const https = require('https');
 const http = require('http');
+const webpush = require('web-push');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
+
+let VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || '';
+let VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
+if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
+  const vapidKeys = webpush.generateVAPIDKeys();
+  VAPID_PUBLIC = vapidKeys.publicKey;
+  VAPID_PRIVATE = vapidKeys.privateKey;
+  console.log('VAPID keys generated. Set these as env vars for persistence:');
+  console.log('VAPID_PUBLIC_KEY=' + VAPID_PUBLIC);
+  console.log('VAPID_PRIVATE_KEY=' + VAPID_PRIVATE);
+}
+webpush.setVapidDetails('mailto:noreply@aguia-ads.com', VAPID_PUBLIC, VAPID_PRIVATE);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -103,6 +116,16 @@ async function initDB() {
       notify_on_sale BOOLEAN DEFAULT true,
       notify_on_click BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      endpoint TEXT NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, endpoint)
     );
   `);
 
@@ -315,6 +338,13 @@ app.get('/postback/:tagId', async (req, res) => {
         const msg = `<b>Águia Ads - Venda Aprovada</b>\n${network || offer || 'Venda'} - USD ${revenue.toFixed(2)}`;
         sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
       }
+      sendPushToUser(userId, {
+        title: '🦅 Venda Aprovada!',
+        body: `${network || offer || 'Venda'} — USD ${revenue.toFixed(2)}`,
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        data: { url: '/' }
+      }).catch(() => {});
       if (settings.email_enabled && settings.email_to && settings.email_api_key && settings.notify_on_sale) {
         const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
           <div style="text-align:center;margin-bottom:16px"><span style="font-size:40px">🦅</span><h2 style="color:#f5a623;margin:8px 0">VENDA DETECTADA!</h2></div>
@@ -562,6 +592,41 @@ app.post('/api/notifications/test-email', auth, async (req, res) => {
 
 // ============ TRACKING SCRIPT GENERATOR ============
 
+// ============ PUSH NOTIFICATIONS ============
+
+app.get('/api/push/vapid-key', auth, (req, res) => {
+  res.json({ publicKey: VAPID_PUBLIC });
+});
+
+app.post('/api/push/subscribe', auth, async (req, res) => {
+  try {
+    const { endpoint, keys } = req.body;
+    if (!endpoint || !keys?.p256dh || !keys?.auth) return res.status(400).json({ error: 'Subscription inválida' });
+    await pool.query(
+      `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, endpoint) DO UPDATE SET p256dh = $3, auth = $4`,
+      [req.user.id, endpoint, keys.p256dh, keys.auth]
+    );
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+async function sendPushToUser(userId, payload) {
+  try {
+    const subs = await pool.query('SELECT * FROM push_subscriptions WHERE user_id = $1', [userId]);
+    for (const sub of subs.rows) {
+      const pushSub = { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } };
+      try {
+        await webpush.sendNotification(pushSub, JSON.stringify(payload));
+      } catch (err) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await pool.query('DELETE FROM push_subscriptions WHERE id = $1', [sub.id]);
+        }
+      }
+    }
+  } catch (e) { console.error('Push error:', e.message); }
+}
+
 app.get('/api/script/:tagId', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
   const script = `<!-- Águia Ads - Tag: ${req.params.tagId} -->
@@ -636,6 +701,30 @@ self.addEventListener('fetch', e => {
       }
       return r;
     }).catch(() => caches.match(e.request))
+  );
+});
+
+self.addEventListener('push', e => {
+  if (!e.data) return;
+  const d = e.data.json();
+  e.waitUntil(
+    self.registration.showNotification(d.title || 'Águia Ads', {
+      body: d.body || '',
+      icon: d.icon || '/icon-192.png',
+      badge: d.badge || '/icon-192.png',
+      data: d.data || {}
+    })
+  );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = e.notification.data?.url || '/';
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) { if (c.url.includes(url) && 'focus' in c) return c.focus(); }
+      return clients.openWindow(url);
+    })
   );
 });
   `);

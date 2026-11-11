@@ -1826,9 +1826,36 @@ async function testEmail(){
 // INIT — check auth and load from API
 checkAuth();
 
-// PWA Service Worker Registration
+// PWA Service Worker + Push Notifications
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.register('/sw.js').then(async (reg) => {
+    if (!('PushManager' in window)) return;
+    try {
+      const resp = await fetch('/api/push/vapid-key', { credentials: 'include' });
+      if (!resp.ok) return;
+      const { publicKey } = await resp.json();
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        await fetch('/api/push/subscribe', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(existing.toJSON())
+        });
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return;
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: Uint8Array.from(atob(publicKey.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0))
+      });
+      await fetch('/api/push/subscribe', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub.toJSON())
+      });
+    } catch (e) { console.log('Push setup:', e.message); }
+  }).catch(() => {});
 }
 </script>
 
