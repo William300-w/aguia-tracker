@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const crypto = require('crypto');
+const https = require('https');
+const http = require('http');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -85,6 +87,18 @@ async function initDB() {
       payout REAL DEFAULT 0,
       url TEXT DEFAULT '',
       status TEXT DEFAULT 'active',
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS notification_settings (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER UNIQUE NOT NULL REFERENCES users(id),
+      telegram_bot_token TEXT DEFAULT '',
+      telegram_chat_id TEXT DEFAULT '',
+      telegram_enabled BOOLEAN DEFAULT false,
+      email_enabled BOOLEAN DEFAULT false,
+      notify_on_sale BOOLEAN DEFAULT true,
+      notify_on_click BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `);
@@ -189,14 +203,32 @@ app.get('/t/:tagId', async (req, res) => {
   } catch (e) { res.status(204).end(); }
 });
 
+function sendTelegram(botToken, chatId, message) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' });
+    const req = https.request({
+      hostname: 'api.telegram.org',
+      path: `/bot${botToken}/sendMessage`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+    }, (res) => { res.resume(); resolve(); });
+    req.on('error', () => resolve());
+    req.write(data);
+    req.end();
+  });
+}
+
 app.get('/postback/:tagId', async (req, res) => {
   try {
     const { tagId } = req.params;
-    const tag = await pool.query('SELECT id FROM tags WHERE id = $1', [tagId]);
+    const tag = await pool.query('SELECT t.id, t.name, t.user_id FROM tags t WHERE t.id = $1', [tagId]);
     if (tag.rows.length === 0) { res.status(404).json({ error: 'Tag não encontrada' }); return; }
 
     const ip = req.query.ip || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
     const geo = geoip.lookup(ip) || {};
+    const revenue = parseFloat(req.query.amount || req.query.revenue || '0') || 0;
+    const network = req.query.network || '';
+    const offer = req.query.offer || '';
 
     await pool.query(
       `INSERT INTO events (tag_id, type, ip, country, country_code, region, city, lat, lon, visitor_id, revenue, metadata)
@@ -204,9 +236,20 @@ app.get('/postback/:tagId', async (req, res) => {
       [tagId, ip, geo.country || '', geo.country || '', geo.region || '', geo.city || '',
        geo.ll?.[0] || null, geo.ll?.[1] || null,
        req.query.vid || req.query.clickid || '',
-       parseFloat(req.query.amount || req.query.revenue || '0') || 0,
-       JSON.stringify({ offer: req.query.offer || '', txid: req.query.txid || '', network: req.query.network || '' })]
+       revenue,
+       JSON.stringify({ offer, txid: req.query.txid || '', network })]
     );
+
+    const userId = tag.rows[0].user_id;
+    const tagName = tag.rows[0].name;
+    const ns = await pool.query('SELECT * FROM notification_settings WHERE user_id = $1', [userId]);
+    if (ns.rows.length > 0) {
+      const settings = ns.rows[0];
+      if (settings.telegram_enabled && settings.telegram_bot_token && settings.telegram_chat_id && settings.notify_on_sale) {
+        const msg = `🦅 <b>VENDA DETECTADA!</b>\n\n💰 Valor: $${revenue.toFixed(2)}\n📋 Tag: ${tagName}\n🌐 Rede: ${network || 'N/A'}\n📦 Oferta: ${offer || 'N/A'}\n🌍 País: ${geo.country || 'N/A'}\n🏙️ Cidade: ${geo.city || 'N/A'}\n⏰ ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;
+        sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
+      }
+    }
 
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -382,6 +425,46 @@ app.post('/api/products', auth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ============ NOTIFICATION SETTINGS ============
+
+app.get('/api/notifications/settings', auth, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM notification_settings WHERE user_id = $1', [req.user.id]);
+    if (result.rows.length === 0) {
+      await pool.query('INSERT INTO notification_settings (user_id) VALUES ($1)', [req.user.id]);
+      const fresh = await pool.query('SELECT * FROM notification_settings WHERE user_id = $1', [req.user.id]);
+      res.json(fresh.rows[0]);
+    } else {
+      res.json(result.rows[0]);
+    }
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/notifications/settings', auth, async (req, res) => {
+  try {
+    const { telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, notify_on_sale, notify_on_click } = req.body;
+    const exists = await pool.query('SELECT id FROM notification_settings WHERE user_id = $1', [req.user.id]);
+    if (exists.rows.length === 0) {
+      await pool.query('INSERT INTO notification_settings (user_id, telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, notify_on_sale, notify_on_click) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [req.user.id, telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, notify_on_sale !== false, notify_on_click || false]);
+    } else {
+      await pool.query('UPDATE notification_settings SET telegram_bot_token = $1, telegram_chat_id = $2, telegram_enabled = $3, email_enabled = $4, notify_on_sale = $5, notify_on_click = $6 WHERE user_id = $7',
+        [telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, notify_on_sale !== false, notify_on_click || false, req.user.id]);
+    }
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/notifications/test-telegram', auth, async (req, res) => {
+  try {
+    const { telegram_bot_token, telegram_chat_id } = req.body;
+    if (!telegram_bot_token || !telegram_chat_id) return res.status(400).json({ error: 'Token e Chat ID obrigatórios' });
+    const msg = '🦅 <b>Teste Águia Tracker</b>\n\n✅ Notificações Telegram configuradas com sucesso!\nVocê receberá alertas de vendas aqui.';
+    await sendTelegram(telegram_bot_token, telegram_chat_id, msg);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ============ TRACKING SCRIPT GENERATOR ============
 
 app.get('/api/script/:tagId', (req, res) => {
@@ -413,6 +496,54 @@ app.get('/api/script/:tagId', (req, res) => {
 </script>`;
   res.set('Content-Type', 'text/plain');
   res.send(script);
+});
+
+app.get('/manifest.json', (req, res) => {
+  res.json({
+    name: 'Águia Tracker',
+    short_name: 'Águia',
+    description: 'Sistema de rastreamento profissional para afiliados',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#0d0d0d',
+    theme_color: '#f5a623',
+    orientation: 'portrait-primary',
+    icons: [
+      { src: '/eagle.webp', sizes: '192x192', type: 'image/webp' },
+      { src: '/eagle.webp', sizes: '512x512', type: 'image/webp' }
+    ]
+  });
+});
+
+app.get('/sw.js', (req, res) => {
+  res.set('Content-Type', 'application/javascript');
+  res.send(`
+const CACHE_NAME = 'aguia-v1';
+const OFFLINE_URLS = ['/', '/eagle.webp'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(OFFLINE_URLS)));
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))));
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request).then(r => {
+      if (r.ok) {
+        const clone = r.clone();
+        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+      }
+      return r;
+    }).catch(() => caches.match(e.request))
+  );
+});
+  `);
 });
 
 app.get('/', (req, res) => {
