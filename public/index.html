@@ -1,0 +1,1521 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Águia Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+<style>
+:root {
+  --bg:#0c0c0f; --bg2:#131317; --bg3:#1a1a20; --bg4:#22222a;
+  --fg:#e8e8ec; --fg2:#a0a0ad; --fg3:#6b6b78;
+  --accent:#f5a623; --accent2:#e6991a;
+  --green:#22c55e; --red:#ef4444; --blue:#3b82f6;
+  --purple:#8b5cf6; --pink:#ec4899; --orange:#f97316; --cyan:#06b6d4;
+  --card-blue:#0c1628; --border:#252530;
+  font-family:'Inter',system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark}}
+:root[data-theme="dark"]{color-scheme:dark}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);display:flex;min-height:100vh;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+.ms{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:20px;
+  display:inline-block;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;
+  word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased;font-variation-settings:'FILL'1,'wght'500,'GRAD'0,'opsz'24}
+[hidden]{display:none!important}
+
+/* SIDEBAR */
+.sb{width:240px;min-width:240px;background:var(--bg2);border-right:1px solid var(--border);
+  position:fixed;top:env(safe-area-inset-top,0px);bottom:0;left:0;z-index:50;
+  display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:18px 20px 20px;border-bottom:1px solid var(--border)}
+.sb-logo .ico{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:22px;color:#0c0c0f}
+.sb-logo span{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.5px}
+.sb-logo .ac{color:var(--accent)}
+.sb-section{padding:8px 0}
+.sb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);
+  padding:12px 20px 4px}
+
+.ni{display:flex;align-items:center;gap:11px;padding:9px 18px;cursor:pointer;
+  color:var(--fg2);font-size:13px;font-weight:500;border-left:3px solid transparent;transition:all .12s}
+.ni:hover{color:var(--fg);background:rgba(245,166,35,.05)}
+.ni.act{color:var(--fg);background:rgba(245,166,35,.1);border-left-color:var(--accent)}
+.ni .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ni .ic.c1{background:var(--accent);color:#0c0c0f} .ni .ic.c2{background:var(--blue);color:#fff}
+.ni .ic.c3{background:var(--purple);color:#fff} .ni .ic.c4{background:var(--green);color:#fff}
+.ni .ic.c5{background:var(--orange);color:#fff} .ni .ic.c6{background:var(--pink);color:#fff}
+.ni .ic.c7{background:var(--cyan);color:#fff} .ni .ic.c8{background:var(--fg3);color:#fff}
+.ni .arr{margin-left:auto;font-size:16px;color:var(--fg3);transition:transform .2s}
+.ni.open .arr{transform:rotate(180deg)}
+.sub{overflow:hidden;max-height:0;transition:max-height .25s ease}
+.sub.open{max-height:500px}
+.sub .ni{padding-left:56px;font-size:12.5px}
+
+/* MAIN */
+.mn{margin-left:240px;flex:1;padding:20px 24px;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.topbar h1{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:700}
+.topbar .sub-t{font-size:13px;color:var(--fg2);margin-top:2px}
+.ptabs{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:3px}
+.ptab{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;
+  color:var(--fg2);border:none;background:none;transition:all .12s}
+.ptab:hover{color:var(--fg)} .ptab.act{background:var(--accent);color:#0c0c0f}
+.vtabs{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:3px;margin-right:8px}
+.vtab{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;
+  color:var(--fg2);border:none;background:none} .vtab.act{background:var(--accent);color:#0c0c0f}
+
+/* KPI */
+.kg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.kg2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.kc{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px;
+  display:flex;align-items:center;gap:12px}
+.kc .ki{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.kc .kb{flex:1;min-width:0}
+.kc .kl{font-size:11.5px;color:var(--fg2);font-weight:500}
+.kc .kv{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-top:1px;font-variant-numeric:tabular-nums}
+.kc .kp{width:40px;height:40px;position:relative;flex-shrink:0}
+.kc .kp svg{transform:rotate(-90deg)} .kc .kp .pp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:var(--fg2)}
+
+/* FINANCIAL CARDS */
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:22px}
+.fc{background:var(--card-blue);border:1px solid rgba(59,130,246,.12);border-radius:12px;padding:14px 16px}
+.fc .fl{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--fg2);font-weight:500;margin-bottom:6px}
+.fc .fl .dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.fc .fv{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.fc .fv.gr{color:var(--green)} .fc .fv.rd{color:var(--red)}
+
+/* SECTION CARD */
+.sc{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
+.sc h2{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.si{width:100%;padding:9px 12px 9px 36px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  color:var(--fg);font-size:13px;margin-bottom:12px;outline:none}
+.si:focus{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse} th{text-align:left;font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);padding:9px 10px;border-bottom:1px solid var(--border)}
+td{padding:10px;font-size:13px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.gr{background:rgba(34,197,94,.12);color:var(--green)} .badge.rd{background:rgba(239,68,68,.12);color:var(--red)}
+.badge.yl{background:rgba(245,166,35,.12);color:var(--accent)} .badge.bl{background:rgba(59,130,246,.12);color:var(--blue)}
+
+.tw{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-bottom:18px}
+
+/* CHART */
+.ca{width:100%;height:180px;display:flex;align-items:flex-end;gap:5px;padding-top:8px}
+.cb{flex:1;border-radius:5px 5px 0 0;background:var(--accent);min-height:3px;position:relative;transition:height .4s ease;cursor:pointer}
+.cb:hover{opacity:.8} .cb .tt{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  background:#222;color:#fff;padding:3px 7px;border-radius:5px;font-size:10px;white-space:nowrap;margin-bottom:3px}
+.cb:hover .tt{display:block}
+.cl{display:flex;gap:5px;margin-top:6px} .cl span{flex:1;text-align:center;font-size:10.5px;color:var(--fg3)}
+
+/* ECO */
+.eco{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:18px}
+.eco h3{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.eco h3 .eico{width:26px;height:26px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.eco .ev{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;font-variant-numeric:tabular-nums}
+.eco .ed{font-size:12px;color:var(--fg2);margin-top:5px;line-height:1.5}
+
+/* TABS */
+.trow{display:flex;gap:0;margin-bottom:18px}
+.tbtn{padding:8px 18px;font-size:12.5px;font-weight:600;border:1px solid var(--border);background:none;color:var(--fg2);cursor:pointer}
+.tbtn:first-child{border-radius:8px 0 0 8px} .tbtn:last-child{border-radius:0 8px 8px 0}
+.tbtn.act{background:var(--accent);color:#0c0c0f;border-color:var(--accent)}
+
+/* FORMS */
+.af{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.af input,.af select{padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px;min-width:0;flex:1}
+.af input:focus,.af select:focus{border-color:var(--accent);outline:none}
+.btn{padding:8px 18px;background:var(--accent);color:#0c0c0f;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--accent2)} .btn.sm{padding:4px 10px;font-size:11.5px}
+.btn.dn{background:var(--red);color:#fff} .btn.gh{background:none;color:var(--fg2);border:1px solid var(--border)}
+.btn.gr{background:var(--green);color:#fff}
+
+/* TOGGLES */
+.tg{position:relative;width:38px;height:20px;display:inline-block;cursor:pointer}
+.tg input{opacity:0;width:0;height:0}
+.tg .sl{position:absolute;inset:0;background:var(--bg);border:1px solid var(--border);border-radius:20px;transition:.2s}
+.tg .sl:before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;background:var(--fg3);border-radius:50%;transition:.2s}
+.tg input:checked+.sl{background:var(--green);border-color:var(--green)}
+.tg input:checked+.sl:before{transform:translateX(18px);background:#fff}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:24px;width:90%;max-width:480px;max-height:80vh;overflow-y:auto}
+.modal h3{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.modal h3 .close-btn{background:none;border:none;color:var(--fg3);font-size:22px;cursor:pointer;padding:0;line-height:1}
+.modal h3 .close-btn:hover{color:var(--fg)}
+.modal .mf{display:flex;flex-direction:column;gap:10px}
+.modal .mf label{font-size:12px;color:var(--fg2);font-weight:600}
+.modal .mf input,.modal .mf select,.modal .mf textarea{padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px;font-family:inherit}
+.modal .mf input:focus,.modal .mf select:focus,.modal .mf textarea:focus{border-color:var(--accent);outline:none}
+.modal .mf textarea{resize:vertical;min-height:60px}
+.modal .mactions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+
+/* SCRIPT INSTALL MODAL */
+.script-modal{max-width:540px}
+.script-tabs{display:flex;gap:3px;margin-bottom:16px}
+.script-tab{padding:6px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+  color:var(--fg2);background:var(--bg2);border:1px solid var(--border);transition:all .15s}
+.script-tab.act{background:var(--accent);color:#0c0c0f;border-color:var(--accent)}
+.script-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;
+  background:rgba(245,166,35,.15);color:var(--accent);border:1px solid rgba(245,166,35,.3);margin-bottom:12px}
+.script-code-wrap{background:#111115;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:12px 0}
+.script-code-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)}
+.script-code-dots{display:flex;gap:6px}
+.script-code-dots span{width:10px;height:10px;border-radius:50%;background:var(--fg3)}
+.script-code-file{font-size:12px;color:var(--fg3)}
+.script-code-lang{font-size:10px;font-weight:700;background:var(--bg4);color:var(--fg2);padding:2px 8px;border-radius:4px}
+.script-code-body{padding:14px 16px;font-family:'Courier New',monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre}
+.script-code-body .tag{color:#e06c75} .script-code-body .attr{color:#d19a66} .script-code-body .val{color:#98c379}
+.script-copy-btn{width:100%;padding:12px;border-radius:10px;background:var(--accent);color:#0c0c0f;border:none;
+  font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.script-copy-btn:hover{background:var(--accent2)}
+.script-check-list{list-style:none;padding:0;margin:0 0 16px}
+.script-check-list li{font-size:13px;color:var(--fg2);padding:4px 0;display:flex;align-items:flex-start;gap:8px}
+.script-check-list li::before{content:'•';color:var(--accent);font-weight:bold;font-size:16px;line-height:1.3}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:10px 20px;border-radius:10px;
+  font-size:13px;font-weight:600;z-index:200;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* LIGHT MODE */
+:root.light-mode{
+  --bg:#f4f4f7;--bg2:#ffffff;--bg3:#eeeef2;--bg4:#e2e2e8;
+  --fg:#1a1a20;--fg2:#555568;--fg3:#888898;
+  --accent:#e8941e;--accent2:#d1840f;
+  --card-blue:#e8edf6;--border:#d5d5e0;
+  color-scheme:light;
+}
+:root.light-mode body{background:var(--bg);color:var(--fg)}
+
+/* USER DROPDOWN */
+.user-dd{position:relative;cursor:pointer}
+.user-dd-menu{display:none;position:absolute;top:100%;right:0;margin-top:6px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:6px;min-width:220px;z-index:80;
+  box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.user-dd.open .user-dd-menu{display:block}
+.user-dd-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12.5px;font-weight:500;
+  color:var(--fg2);cursor:pointer;transition:background .12s}
+.user-dd-item:hover{background:var(--bg4);color:var(--fg)}
+.user-dd-sep{height:1px;background:var(--border);margin:4px 8px}
+
+/* AI CHAT */
+.ai-chat{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding:4px}
+.ai-msg{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.6;max-width:90%}
+.ai-msg.user{background:var(--accent);color:#0c0c0f;align-self:flex-end;border-bottom-right-radius:3px}
+.ai-msg.bot{background:var(--bg2);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px}
+
+/* VISIT RESULT */
+.visit-result{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px}
+.visit-result .vr-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12.5px}
+.visit-result .vr-row span:first-child{color:var(--fg2)} .visit-result .vr-row span:last-child{font-weight:600}
+
+/* MOBILE */
+.mt{display:none;position:fixed;top:env(safe-area-inset-top,10px);left:max(10px,env(safe-area-inset-left,0px));z-index:60;
+  width:38px;height:38px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;color:var(--fg);
+  font-size:18px;cursor:pointer;align-items:center;justify-content:center}
+.sbo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:45}
+@media(max-width:800px){
+  .sb{transform:translateX(-100%);transition:transform .25s} .sb.open{transform:translateX(0)}
+  .sbo.open{display:block} .mt{display:flex} .mn{margin-left:0;padding:56px 10px 16px}
+  .kg{grid-template-columns:1fr 1fr} .kg2{grid-template-columns:1fr 1fr} .fg{grid-template-columns:1fr 1fr} .tw{grid-template-columns:1fr}
+  .af{flex-direction:column}
+}
+@media(max-width:480px){.kg{grid-template-columns:1fr} .fg{grid-template-columns:1fr}}
+</style>
+
+
+<button class="mt" onclick="document.querySelector('.sb').classList.toggle('open');document.querySelector('.sbo').classList.toggle('open')"><span class="ms">menu</span></button>
+<div class="sbo" onclick="document.querySelector('.sb').classList.remove('open');this.classList.remove('open')"></div>
+
+<nav class="sb" id="sidebar">
+  <div class="sb-logo"><div class="ico">🦅</div><span>Águia<span class="ac">Tracker</span></span>
+  <div id="lang-btns" style="display:flex;gap:2px;margin-left:auto"><button class="btn gh" style="padding:2px 8px;font-size:10px;border-radius:5px;font-weight:700" onclick="setLang('pt')">PT</button><button class="btn gh" style="padding:2px 8px;font-size:10px;border-radius:5px;font-weight:700" onclick="setLang('en')">EN</button><button class="btn gh" style="padding:2px 8px;font-size:10px;border-radius:5px;font-weight:700" onclick="setLang('es')">ES</button></div></div>
+  <div class="sb-section">
+    <div class="ni act" data-p="home" onclick="go('home')"><div class="ic c1"><span class="ms">home</span></div>Home</div>
+    <div class="ni" onclick="toggleSub(this)"><div class="ic c2"><span class="ms">dashboard</span></div>Analytics<span class="ms arr">expand_more</span></div>
+    <div class="sub"><div class="ni" data-p="financial" onclick="go('financial')"><span class="ms" style="font-size:16px;margin-right:4px">bar_chart</span>Dashboard Financeiro</div>
+    <div class="ni" data-p="vturb" onclick="go('vturb')"><span class="ms" style="font-size:16px;margin-right:4px">videocam</span>VTurb Analytics</div></div>
+    <div class="ni" onclick="toggleSub(this)"><div class="ic c3"><span class="ms">campaign</span></div>Gerenciador de Anúncios<span class="ms arr">expand_more</span></div>
+    <div class="sub"><div class="ni" data-p="gads" onclick="go('gads')"><span class="ms" style="font-size:16px;margin-right:4px">ads_click</span>Google Ads</div>
+    <div class="ni" data-p="meta" onclick="go('meta')"><span class="ms" style="font-size:16px;margin-right:4px">public</span>Meta Ads</div>
+    <div class="ni" data-p="newsbreak" onclick="go('newsbreak')"><span class="ms" style="font-size:16px;margin-right:4px">feed</span>NewsBreak</div>
+    <div class="ni" data-p="taboola" onclick="go('taboola')"><span class="ms" style="font-size:16px;margin-right:4px">web</span>Taboola</div>
+    <div class="ni" data-p="tiktok" onclick="go('tiktok')"><span class="ms" style="font-size:16px;margin-right:4px">play_circle</span>TikTok Ads</div>
+    <div class="ni" data-p="mgid" onclick="go('mgid')"><span class="ms" style="font-size:16px;margin-right:4px">grid_view</span>MGID</div>
+    <div class="ni" data-p="revcontent" onclick="go('revcontent')"><span class="ms" style="font-size:16px;margin-right:4px">article</span>RevContent</div>
+    <div class="ni" data-p="criar-campanha" onclick="go('criar-campanha')"><span class="ms" style="font-size:16px;margin-right:4px">smart_toy</span>Criar Campanha IA</div></div>
+    <div class="ni" data-p="projects" onclick="go('projects')"><div class="ic c4"><span class="ms">assignment</span></div>Projetos</div>
+    <div class="ni" data-p="trackers" onclick="go('trackers')"><div class="ic c5"><span class="ms">mouse</span></div>Trackers</div>
+    <div class="ni" data-p="tags" onclick="go('tags')"><div class="ic c6"><span class="ms">label</span></div>TAG Águia</div>
+  </div>
+  <div class="sb-section">
+    <div class="ni" onclick="toggleSub(this)"><div class="ic c7"><span class="ms">notifications</span></div>Notificações<span class="ms arr">expand_more</span></div>
+    <div class="sub"><div class="ni" data-p="notif-link" onclick="go('notif-link')"><span class="ms" style="font-size:16px;margin-right:4px">link</span>Link de Notificação</div>
+    <div class="ni" data-p="notif-list" onclick="go('notif-list')"><span class="ms" style="font-size:16px;margin-right:4px">attach_money</span>Lista de Notificações</div></div>
+    <div class="ni" onclick="toggleSub(this)"><div class="ic c5"><span class="ms">shopping_cart</span></div>Checkout<span class="ms arr">expand_more</span></div>
+    <div class="sub"><div class="ni" data-p="ck-link" onclick="go('ck-link')"><span class="ms" style="font-size:16px;margin-right:4px">link</span>Link de Checkout</div>
+    <div class="ni" data-p="ck-list" onclick="go('ck-list')"><span class="ms" style="font-size:16px;margin-right:4px">shopping_bag</span>Lista de Checkouts</div></div>
+  </div>
+  <div class="sb-section">
+    <div class="ni" onclick="toggleSub(this)"><div class="ic c7"><span class="ms">webhook</span></div>Integrações<span class="ms arr">expand_more</span></div>
+    <div class="sub"><div class="ni" data-p="accounts" onclick="go('accounts')"><span class="ms" style="font-size:16px;margin-right:4px">account_circle</span>Central de Contas</div>
+    <div class="ni" data-p="vturb-int" onclick="go('vturb-int')"><span class="ms" style="font-size:16px;margin-right:4px">videocam</span>VTurb</div>
+    <div class="ni" data-p="apikeys" onclick="go('apikeys')"><span class="ms" style="font-size:16px;margin-right:4px">key</span>API Keys</div></div>
+    <div class="ni" onclick="toggleSub(this)"><div class="ic c8"><span class="ms">tune</span></div>Avançado<span class="ms arr">expand_more</span></div>
+    <div class="sub"><div class="ni" data-p="producer-url" onclick="go('producer-url')"><span class="ms" style="font-size:16px;margin-right:4px">link</span>URL Produtor</div>
+    <div class="ni" data-p="reports" onclick="go('reports')"><span class="ms" style="font-size:16px;margin-right:4px">description</span>Relatórios</div>
+    <div class="ni" data-p="domains" onclick="go('domains')"><span class="ms" style="font-size:16px;margin-right:4px">language</span>Domínios Próprios</div>
+    <div class="ni" data-p="taxes" onclick="go('taxes')"><span class="ms" style="font-size:16px;margin-right:4px">bar_chart</span>Impostos</div>
+    <div class="ni" data-p="fees" onclick="go('fees')"><span class="ms" style="font-size:16px;margin-right:4px">campaign</span>Taxas</div>
+    <div class="ni" data-p="products" onclick="go('products')"><span class="ms" style="font-size:16px;margin-right:4px">table_chart</span>Produtos</div></div>
+  </div>
+  <div style="margin:12px 14px 18px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:6px">Suporte IA</div>
+    <div style="font-size:11.5px;color:var(--fg2);margin-bottom:10px">Tire suas dúvidas com nossa Inteligência Artificial</div>
+    <button class="btn" style="width:100%;justify-content:center;font-size:12px" onclick="openAIChat()"><span class="ms" style="font-size:16px">auto_awesome</span> Perguntar para IA</button>
+  </div>
+  <div style="margin:0 14px 18px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:6px">Precisa de Ajuda?</div>
+    <div style="font-size:11.5px;color:var(--fg2);margin-bottom:10px">Entre em contato conosco pelo nosso suporte</div>
+    <button class="btn" style="width:100%;justify-content:center;font-size:12px;background:var(--green);color:#fff" onclick="openModal('Suporte WhatsApp','<div style=text-align:center><div style=font-size:48px;margin-bottom:10px>💬</div><p style=color:var(--fg2);font-size:13px;margin-bottom:14px>Fale com nossa equipe de suporte pelo WhatsApp.</p><div style=background:var(--bg2);border:1px+solid+var(--border);border-radius:10px;padding:14px;margin-bottom:14px><div style=font-size:12px;color:var(--fg3)>Número de Suporte</div><div style=font-size:18px;font-weight:700;margin-top:4px>+55 (11) 99999-0000</div></div><div style=display:flex;gap:8px;justify-content:center><button class=btn onclick=cpTxt(&quot;+5511999990000&quot;)><span class=ms style=font-size:16px>content_copy</span> Copiar Número</button><button class=btn+gh onclick=closeModal()>Fechar</button></div></div>')"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23fff' viewBox='0 0 24 24'%3E%3Cpath d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z'/%3E%3C/svg%3E" style="width:16px;height:16px;vertical-align:middle;margin-right:6px"> Entrar em Contato</button>
+  </div>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><h3 id="modal-title"><span></span><button class="close-btn" onclick="closeModal()"><span class="ms">close</span></button></h3>
+  <div id="modal-body"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="mn">
+<!-- TOP NAVBAR -->
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-bottom:16px;padding:6px 0;flex-wrap:wrap">
+  <button class="btn gh" style="padding:5px 8px;border-radius:8px" onclick="openNotifPanel()"><span class="ms" style="font-size:20px">notifications</span></button>
+  <button class="btn gh" style="padding:5px 14px;font-size:12px;border-radius:8px" onclick="go('home')"><span class="ms" style="font-size:16px">home_work</span> Voltar ao Hub</button>
+  <button id="theme-btn" class="btn gh" style="padding:5px 8px;border-radius:8px" onclick="toggleTheme()"><span class="ms" style="font-size:20px">light_mode</span></button>
+  <button class="btn gh" style="padding:5px 14px;font-size:12px;border-radius:8px" onclick="openAIChat()"><span class="ms" style="font-size:16px">auto_awesome</span> Perguntar para a IA</button>
+  <button class="btn gh" style="padding:5px 14px;font-size:12px;border-radius:8px" onclick="go('tutorial')"><span class="ms" style="font-size:16px">school</span> Central de Ajuda</button>
+  <div class="user-dd" onclick="this.classList.toggle('open')">
+    <span style="font-size:13px;font-weight:600;color:var(--fg);display:flex;align-items:center;gap:6px;cursor:pointer"><span class="ms" style="font-size:18px;color:var(--fg2)">account_circle</span>Usuário <span class="ms" style="font-size:14px;color:var(--fg3)">expand_more</span></span>
+    <div class="user-dd-menu">
+      <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+        <div style="font-weight:700;font-size:13px">Minha Conta</div>
+        <div style="font-size:11px;color:var(--fg3);margin-top:2px">usuario@email.com</div>
+        <div style="margin-top:6px;display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(245,166,35,.15);color:var(--accent)">Plano Pro</div>
+      </div>
+      <div class="user-dd-item" onclick="openModal('Meu Perfil','<div class=mf><label>Nome</label><input value=&quot;Usuário Águia&quot;><label>Email</label><input value=&quot;usuario@email.com&quot;><label>Telefone</label><input value=&quot;+55 11 99999-0000&quot;><div class=mactions><button class=btn onclick=closeModal();showToast(&quot;Perfil salvo!&quot;)>Salvar</button></div></div>')"><span class="ms" style="font-size:16px">person</span> Meu Perfil</div>
+      <div class="user-dd-item" onclick="openModal('Alterar Senha','<div class=mf><label>Senha atual</label><input type=password><label>Nova senha</label><input type=password><label>Confirmar nova senha</label><input type=password><div class=mactions><button class=btn onclick=closeModal();showToast(&quot;Senha alterada!&quot;)>Alterar</button></div></div>')"><span class="ms" style="font-size:16px">lock</span> Alterar Senha</div>
+      <div class="user-dd-item" onclick="openModal('Meu Plano','<div style=text-align:center><div style=font-size:40px;margin-bottom:8px>🦅</div><div style=font-family:Space+Grotesk,sans-serif;font-size:22px;font-weight:800;margin-bottom:4px>Plano Pro</div><div style=color:var(--fg2);font-size:13px;margin-bottom:16px>Acesso completo a todas as funcionalidades</div><div style=display:grid;grid-template-columns:1fr+1fr;gap:10px;text-align:left><div style=background:var(--bg2);border:1px+solid+var(--border);border-radius:8px;padding:10px><div style=font-size:11px;color:var(--fg3)>TAGs Ativas</div><div style=font-weight:700>5 / 20</div></div><div style=background:var(--bg2);border:1px+solid+var(--border);border-radius:8px;padding:10px><div style=font-size:11px;color:var(--fg3)>Trackers</div><div style=font-weight:700>3 / 50</div></div><div style=background:var(--bg2);border:1px+solid+var(--border);border-radius:8px;padding:10px><div style=font-size:11px;color:var(--fg3)>Projetos</div><div style=font-weight:700>3 / 10</div></div><div style=background:var(--bg2);border:1px+solid+var(--border);border-radius:8px;padding:10px><div style=font-size:11px;color:var(--fg3)>Visitas/mês</div><div style=font-weight:700>1.240 / 100K</div></div></div></div>')"><span class="ms" style="font-size:16px">workspace_premium</span> Meu Plano</div>
+      <div class="user-dd-item" onclick="openModal('Autenticação 2FA','<div style=text-align:center><span class=ms style=font-size:48px;color:var(--accent)>security</span><h3 style=font-size:16px;margin:12px+0+6px>Autenticação de Duas Etapas</h3><p style=color:var(--fg2);font-size:13px;margin-bottom:16px>Proteja sua conta com uma camada extra de segurança.</p><button class=btn onclick=closeModal();showToast(&quot;2FA ativado!&quot;) style=width:100%;justify-content:center>Ativar 2FA</button></div>')"><span class="ms" style="font-size:16px">security</span> Autenticação 2FA</div>
+      <div class="user-dd-sep"></div>
+      <div class="user-dd-item" onclick="showToast('Sessão encerrada!');this.closest('.user-dd').classList.remove('open')" style="color:var(--red)"><span class="ms" style="font-size:16px">logout</span> Sair</div>
+    </div>
+  </div>
+  <button class="btn gh" style="padding:5px 6px;border-radius:6px" onclick="openModal('Configurações','<div class=mf><label>Time Zone</label><select><option>America/Sao_Paulo (GMT-3)</option><option>America/New_York (GMT-5)</option><option>Europe/London (GMT+0)</option><option>Asia/Tokyo (GMT+9)</option></select><label>Formato de Data</label><select><option>DD/MM/AAAA</option><option>MM/DD/YYYY</option><option>YYYY-MM-DD</option></select><label>Moeda Padrão</label><select><option>USD ($)</option><option>BRL (R$)</option><option>EUR (€)</option></select><div class=mactions><button class=btn onclick=closeModal();showToast(&quot;Configurações salvas!&quot;)>Salvar</button></div></div>')"><span class="ms" style="font-size:18px">more_vert</span></button>
+</div>
+
+<!-- ══════════ HOME ══════════ -->
+<div id="p-home">
+  <div style="background:linear-gradient(90deg,#2d2000,#3d2800);border:2px solid var(--accent);border-radius:14px;padding:18px 24px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px"><span class="ms" style="font-size:28px;color:var(--accent)">school</span>
+    <div><div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800">COMECE POR AQUI</div>
+    <div style="font-size:12.5px;color:var(--fg2);margin-top:2px">Siga o tutorial oficial passo a passo para configurar sua Águia e começar a vender hoje. É o guia atualizado da plataforma.</div></div></div>
+    <button class="btn" style="background:var(--accent);font-size:12px;padding:8px 16px" onclick="go('tutorial')"><span class="ms" style="font-size:16px">school</span> Acessar tutorial <span class="ms" style="font-size:14px">open_in_new</span></button></div>
+  <div class="topbar"><div><h1>Dashboard</h1><div class="sub-t">Visualizando dados no período</div></div>
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <div class="vtabs"><button class="vtab act" onclick="setVTab(this)">Águia</button><button class="vtab" onclick="setVTab(this)">TAG Águia</button></div>
+    <div class="ptabs"><button class="ptab" onclick="setP(this)">Ontem</button><button class="ptab act" onclick="setP(this)">Hoje</button><button class="ptab" onclick="setP(this)">7 Dias</button><button class="ptab" onclick="setP(this)">30 Dias</button><button class="ptab" onclick="setP(this)">90 Dias</button><button class="ptab" onclick="setP(this)">Selecionar datas</button></div>
+  </div></div>
+  <div class="kg" id="kpi-g"></div>
+  <div class="kg2" id="kpi-g2"></div>
+  <div class="trow"><button class="tbtn act" onclick="setTbtn(this)">Pago</button><button class="tbtn" onclick="setTbtn(this)">Orgânico</button></div>
+  <div class="tw">
+    <div class="sc"><h2><span class="ms" style="font-size:18px">search</span> Trackers Acessados</h2>
+      <input class="si" placeholder="Buscar tracker..." oninput="filt(this,'rtb')">
+      <div style="overflow-x:auto"><table><thead><tr><th>Nome</th><th style="cursor:pointer" onclick="sortCol('rtb',1)">Visitas ↕</th><th style="cursor:pointer" onclick="sortCol('rtb',2)">Cliques ↕</th><th style="cursor:pointer" onclick="sortCol('rtb',3)">Fuga ↕</th></tr></thead><tbody id="rtb"></tbody></table></div></div>
+    <div><div class="eco" style="margin-bottom:16px"><h3><span class="eico"><span class="ms" style="font-size:14px">attach_money</span></span>Economizometro
+      <span style="margin-left:auto;display:flex;gap:2px"><button class="ptab act" style="padding:3px 10px;font-size:11px" onclick="setP(this)">USD</button><button class="ptab" style="padding:3px 10px;font-size:11px" onclick="setP(this)">BRL</button></span></h3>
+      <div class="ev" id="eco-v">US$ 0,00</div>
+      <p class="ed"><strong>Valor estimado de economia</strong> gerada pelo bloqueio automático de IPs, evitando gastos com cliques indesejados no período selecionado.</p>
+      <p class="ed" style="margin-top:8px;font-size:11px;color:var(--fg3)">* Dados registrados a partir do dia 08 de janeiro de 2026.</p></div>
+      <div class="sc"><h2>Campanhas</h2><div id="camp-sum"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════ FINANCIAL ══════════ -->
+<div id="p-financial" hidden>
+  <div class="topbar"><div><h1>Dashboard Financeiro</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="ptab act" style="background:var(--accent);color:#0c0c0f;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px"><span class="ms" style="font-size:16px">swap_horiz</span>Visual anterior</span>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span class="ptab" style="font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div class="af" style="margin-bottom:16px">
+    <select id="fin-period"><option>Hoje</option><option>Ontem</option><option>7 Dias</option><option>30 Dias</option></select>
+    <select id="fin-project"><option value="">Projeto: Qualquer</option></select>
+    <select id="fin-product"><option value="">Produto: Qualquer</option></select>
+    <select id="fin-adacc"><option value="">Conta de Anúncio: Qualquer</option></select>
+    <select><option>Fonte de Tráfego: Qualquer</option></select>
+    <select><option>Plataforma: Qualquer</option></select>
+    <select><option>Tipo de Tráfego: Todos</option></select>
+    <button class="btn gh" onclick="rFin()"><span class="ms" style="font-size:16px">search</span> Filtrar</button><button class="btn gh" onclick="clearFinFilters()"><span class="ms" style="font-size:16px">close</span> Limpar</button>
+  </div>
+  <div class="fg" id="fin-g"></div>
+  <div class="tw">
+    <div class="sc"><h2>Vendas por Dia da Semana</h2><div class="ca" id="wc"></div><div class="cl" id="wl"></div></div>
+    <div class="sc"><h2>Vendas por País</h2><div style="display:flex;gap:12px;margin-bottom:12px"><span class="ptab act" onclick="setFinCountryTab(this,'ranking')" data-tab="ranking">Ranking</span><span class="ptab" onclick="setFinCountryTab(this,'mapa')" data-tab="mapa">Mapa</span></div>
+    <div id="fin-country-ranking"><div style="color:var(--fg3);font-size:13px;text-align:center;padding:24px">Vendas sem país<br><span style="font-size:22px;font-weight:700;color:var(--fg)">N/A</span> = <span style="font-weight:600">0</span> 0.0%</div></div>
+    <div id="fin-country-mapa" hidden><div style="background:var(--bg3);border-radius:10px;padding:30px;text-align:center;color:var(--fg3);font-size:13px"><span class="ms" style="font-size:48px;display:block;margin-bottom:8px;opacity:.4">public</span>Mapa de vendas por país<br><span style="font-size:11px">Dados aparecerão quando houver vendas rastreadas</span></div></div>
+    </div>
+  </div>
+  <div class="sc" style="margin-top:16px"><h2 style="display:flex;align-items:center;gap:8px">Faturamento x Investimento x Lucro por Hora <span class="ms" style="font-size:16px;color:var(--fg3);cursor:pointer" onclick="openModal('Info do Gráfico','<div style=text-align:center;font-size:13px;color:var(--fg2);line-height:1.7><p style=margin-bottom:10px><b style=color:var(--fg)>Faturamento x Investimento x Lucro por Hora</b></p><div style=display:flex;flex-direction:column;gap:8px;text-align:left><div style=display:flex;align-items:center;gap:8px><span style=width:12px;height:12px;border-radius:2px;background:var(--green);display:inline-block></span><b>Faturamento:</b> Receita total gerada por hora</div><div style=display:flex;align-items:center;gap:8px><span style=width:12px;height:12px;border-radius:2px;background:var(--accent);display:inline-block></span><b>Investimento:</b> Gasto em anúncios por hora</div><div style=display:flex;align-items:center;gap:8px><span style=width:12px;height:12px;border-radius:2px;background:#5b8def;display:inline-block></span><b>Lucro:</b> Faturamento menos investimento</div></div><p style=margin-top:12px;font-size:11px;color:var(--fg3)>Dados atualizados em tempo real conforme os trackers capturam eventos.</p></div>')">info</span></h2>
+    <div style="display:flex;gap:8px;margin-bottom:8px"><span class="ptab act" style="padding:3px 10px;font-size:11px" onclick="setP(this)"><span class="ms" style="font-size:14px">show_chart</span></span><span class="ptab" style="padding:3px 10px;font-size:11px" onclick="setP(this)"><span class="ms" style="font-size:14px">table_chart</span></span></div>
+    <div style="display:flex;gap:14px;margin-bottom:8px;font-size:11px"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent);display:inline-block"></span>Investimento</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block"></span>Faturamento</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#5b8def;display:inline-block"></span>Lucro</span></div>
+    <div id="fin-rev-hour" style="height:200px;display:flex;align-items:flex-end;gap:2px;padding:12px 0"></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--fg3);padding:0 4px"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div></div>
+  <div class="sc" style="margin-top:16px"><h2>Vendas por Horário</h2><div id="fin-sales-hour" style="height:160px;display:flex;align-items:flex-end;gap:2px;padding:12px 0"></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--fg3);padding:0 4px"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div></div>
+  <div class="fg" style="grid-template-columns:1fr;max-width:400px;margin-top:16px">
+    <div class="fc"><div class="fl"><span class="ms" style="font-size:16px;color:var(--accent)">person_add</span>CPA Líquido</div><div class="fv">$ 0,00</div></div>
+    <div class="fc"><div class="fl"><span class="ms" style="font-size:16px;color:var(--accent)">monetization_on</span>Faturamento Bruto</div><div class="fv">$ 0,00</div></div>
+  </div>
+  <div class="sc" style="margin-top:16px"><h2>Lucro por Horário</h2>
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:8px"><div class="ptabs"><button class="ptab act" onclick="setP(this)">Bruto</button><button class="ptab" onclick="setP(this)">Liquido</button></div></div>
+    <div style="display:flex;gap:14px;margin-bottom:8px;font-size:11px"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block"></span>Lucro +</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block"></span>Prejuizo -</span></div>
+    <div id="fin-profit-hour" style="height:200px;display:flex;align-items:flex-end;gap:2px;padding:12px 0"></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--fg3);padding:0 4px"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div></div>
+  <div class="sc" style="margin-top:16px"><h2>Top Produtos</h2><div style="overflow-x:auto"><table><thead><tr><th>Produto</th><th>Vendas</th><th>Receita</th></tr></thead><tbody id="tp"></tbody></table></div></div>
+</div>
+
+<!-- ══════════ VTURB ══════════ -->
+<div id="p-vturb" hidden>
+  <div class="topbar"><h1>VTurb Analytics</h1></div>
+  <div class="sc"><h2>Métricas de VSL</h2>
+  <p style="color:var(--fg2);font-size:13px">Conecte sua conta VTurb ou adicione seus links de VSL para acompanhar métricas de visualização.</p>
+  <div class="af" style="margin-top:14px"><input id="vsl-url" placeholder="URL do VSL (VTurb, YouTube, etc.)"><button class="btn" onclick="addVsl()">+ Adicionar VSL</button></div>
+  <div style="overflow-x:auto"><table><thead><tr><th>VSL</th><th>Views</th><th>Retenção Média</th><th>CTA Cliques</th><th></th></tr></thead><tbody id="vsl-b"></tbody></table></div></div>
+</div>
+
+<!-- ══════════ GERENCIADOR ADS ══════════ -->
+<div id="p-gads" hidden>
+  <div class="topbar"><div><h1>Google Ads</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px" id="gads-net"><option>Google Ads</option><option>Meta Ads</option><option>NewsBreak</option><option>Taboola</option><option>TikTok Ads</option><option>MGID</option><option>RevContent</option></select>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span style="font-size:12px;color:var(--fg2);cursor:pointer" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div id="gads-content"></div>
+</div>
+<div id="p-meta" hidden>
+  <div class="topbar"><div><h1>Meta Ads</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px"><option>Meta Ads</option><option>Google Ads</option><option>NewsBreak</option><option>Taboola</option><option>TikTok Ads</option><option>MGID</option><option>RevContent</option></select>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span style="font-size:12px;color:var(--fg2);cursor:pointer" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div id="meta-content"></div>
+</div>
+<div id="p-newsbreak" hidden>
+  <div class="topbar"><div><h1>NewsBreak</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px"><option>NewsBreak</option><option>Google Ads</option><option>Meta Ads</option><option>Taboola</option><option>TikTok Ads</option><option>MGID</option><option>RevContent</option></select>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span style="font-size:12px;color:var(--fg2);cursor:pointer" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div id="nb-content"></div>
+</div>
+<div id="p-taboola" hidden>
+  <div class="topbar"><div><h1>Taboola</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px"><option>Taboola</option><option>Google Ads</option><option>Meta Ads</option><option>NewsBreak</option><option>TikTok Ads</option><option>MGID</option><option>RevContent</option></select>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span style="font-size:12px;color:var(--fg2);cursor:pointer" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div id="tab-content"></div>
+</div>
+<div id="p-tiktok" hidden>
+  <div class="topbar"><div><h1>TikTok Ads</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px"><option>TikTok Ads</option><option>Google Ads</option><option>Meta Ads</option><option>NewsBreak</option><option>Taboola</option><option>MGID</option><option>RevContent</option></select>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span style="font-size:12px;color:var(--fg2);cursor:pointer" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div id="tt-content"></div>
+</div>
+<div id="p-mgid" hidden>
+  <div class="topbar"><div><h1>MGID</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px"><option>MGID</option><option>Google Ads</option><option>Meta Ads</option><option>NewsBreak</option><option>Taboola</option><option>TikTok Ads</option><option>RevContent</option></select>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span style="font-size:12px;color:var(--fg2);cursor:pointer" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div id="mg-content"></div>
+</div>
+<div id="p-revcontent" hidden>
+  <div class="topbar"><div><h1>RevContent</h1></div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <select style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12.5px"><option>RevContent</option><option>Google Ads</option><option>Meta Ads</option><option>NewsBreak</option><option>Taboola</option><option>TikTok Ads</option><option>MGID</option></select>
+    <div class="ptabs"><button class="ptab act" onclick="setP(this)">USD</button><button class="ptab" onclick="setP(this)">BRL</button></div>
+    <span style="font-size:12px;color:var(--fg2);cursor:pointer" onclick="openCustomize()"><span class="ms" style="font-size:16px">tune</span> Personalizar</span></div></div>
+  <div id="rc-content"></div>
+</div>
+
+<!-- ══════════ CRIAR CAMPANHA IA ══════════ -->
+<div id="p-criar-campanha" hidden>
+  <div class="topbar"><h1>Criar Campanha IA</h1></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">auto_awesome</span> Criador de Campanhas com IA</h2>
+  <p style="color:var(--fg2);font-size:13px;margin-bottom:14px">Use inteligência artificial para criar campanhas otimizadas automaticamente. Selecione o produto e a rede de anúncios.</p>
+  <div class="mf" style="max-width:480px">
+    <label style="font-size:12px;color:var(--fg2);font-weight:600">Produto</label>
+    <select id="ia-prod" style="padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></select>
+    <label style="font-size:12px;color:var(--fg2);font-weight:600">Rede de Anúncios</label>
+    <select id="ia-net" style="padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px">
+      <option>Google Ads</option><option>Meta Ads</option><option>TikTok Ads</option><option>Taboola</option><option>NewsBreak</option><option>MGID</option><option>RevContent</option></select>
+    <label style="font-size:12px;color:var(--fg2);font-weight:600">Orçamento Diário (USD)</label>
+    <input id="ia-budget" type="number" placeholder="50.00" style="padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px">
+    <label style="font-size:12px;color:var(--fg2);font-weight:600">País Alvo</label>
+    <select id="ia-country" style="padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px">
+      <option>Estados Unidos</option><option>Canadá</option><option>Reino Unido</option><option>Austrália</option><option>Brasil</option></select>
+    <div class="mactions" style="margin-top:14px"><button class="btn" onclick="showToast('Campanha gerada pela IA! Configure na rede de anúncios.')"><span class="ms" style="font-size:16px">auto_awesome</span> Gerar Campanha</button></div>
+  </div></div>
+</div>
+
+<!-- ══════════ PROJETOS ══════════ -->
+<div id="p-projects" hidden>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:var(--fg2)">toc</span><div><h1>Projetos</h1><div class="sub-t">Aqui você visualiza todos os seus Projetos</div></div></div><button class="btn" onclick="showAddProject()"><span class="ms" style="font-size:16px">add</span> NOVO</button></div>
+  <div class="af"><input id="pj-search" placeholder="Buscar projeto" oninput="rPj()"><select id="pj-order" onchange="rPj()"><option value="">Qualquer</option><option value="recent">Recente</option><option value="name">Nome</option></select><button class="btn" onclick="rPj()"><span class="ms" style="font-size:16px">search</span> Buscar</button></div>
+  <div id="pj-list"></div>
+  <div id="pj-pag" style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:12px;font-size:12px;color:var(--fg2)"><span>Itens por página:</span><select style="padding:4px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-size:12px"><option>20</option><option>50</option></select><span id="pj-pag-info"></span></div>
+</div>
+
+<!-- ══════════ TRACKERS ══════════ -->
+<div id="p-trackers" hidden>
+  <div class="topbar"><div><h1>Trackers</h1><div class="sub-t">Aqui você visualiza todos os seus trackers</div></div>
+  <div style="display:flex;gap:8px"><button class="btn gh" onclick="showFilterTrackers()"><span class="ms" style="font-size:16px">filter_list</span> FILTRAR</button></div></div>
+  <div style="background:linear-gradient(90deg,#2d2000,#3d2800);border:1px solid var(--accent);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+    <span class="ms" style="color:var(--accent);font-size:20px">warning</span>
+    <span style="font-size:12.5px;color:var(--fg2)">Esta seção 'Trackers' será descontinuada em breve. Comece a utilizar a seção <strong style="color:var(--accent);cursor:pointer" onclick="go('tags')">TAG Águia</strong> para seus novos projetos.</span></div>
+  <div class="sc">
+    <h2>Localizador de Visitas</h2>
+    <div class="af"><input id="visit-search" placeholder="Ex: vst_00000000000000000"><button class="btn" onclick="searchVisit()">BUSCAR</button><button class="btn gh" onclick="clearVisitSearch()">LIMPAR</button></div>
+    <div id="visit-result"></div>
+  </div>
+  <div id="tk-list"></div>
+</div>
+
+<!-- ══════════ TAG ÁGUIA ══════════ -->
+<div id="p-tags" hidden>
+  <button class="btn gh" style="margin-bottom:12px;font-size:12.5px" onclick="go('home')"><span class="ms" style="font-size:16px">arrow_back</span> Voltar</button>
+  <div class="topbar"><div><h1>TAGs Águia</h1><div class="sub-t">Crie nova TAG Águia</div></div><div style="display:flex;gap:8px"><button class="btn" onclick="showAddTagModal()">Criar TAG Águia</button><button class="btn gh" style="padding:7px 10px" onclick="showAddTagModal()"><span class="ms" style="font-size:18px">add</span></button></div></div>
+  <div class="sc"><h2>Localizador de Visitas</h2>
+  <p style="color:var(--fg2);font-size:12.5px;margin-bottom:10px">Digite o identificador da visita (vst_***), com ou sem vst_</p>
+  <div class="af"><input id="tag-visit-search" placeholder="Ex: vst_00000000000000000" style="flex:2"><button class="btn gh" onclick="searchTagVisit()">BUSCAR</button><button class="btn gh" onclick="document.getElementById('tag-visit-search').value='';document.getElementById('tag-visit-result').innerHTML=''">LIMPAR</button></div>
+  <div id="tag-visit-result"></div></div>
+  <div class="af" style="margin-bottom:16px;align-items:flex-end"><div style="flex:1"><input id="tag-name-filter" placeholder="Nome" style="width:100%"></div><div><label style="font-size:10px;font-weight:600;color:var(--fg3);display:block;margin-bottom:4px">Rede Ads</label><select id="tag-net-filter"><option value="">Todas as redes</option><option>Google Ads</option><option>Meta Ads</option><option>NewsBreak</option><option>Taboola</option><option>TikTok Ads</option><option>MGID</option><option>RevContent</option></select></div><div><label style="font-size:10px;font-weight:600;color:var(--fg3);display:block;margin-bottom:4px">Status</label><select id="tag-status-filter"><option value="">Todos os status</option><option value="active">Ativo</option><option value="inactive">Inativo</option></select></div><button class="btn" onclick="rTags()">BUSCAR</button></div>
+  <div id="tag-list"></div>
+</div>
+
+<div id="p-tag-analytics" hidden></div>
+
+<!-- ══════════ TUTORIAL ══════════ -->
+<div id="p-tutorial" hidden>
+  <button class="btn gh" style="margin-bottom:12px;font-size:12.5px" onclick="go('home')"><span class="ms" style="font-size:16px">arrow_back</span> Voltar ao Dashboard</button>
+  <div style="display:flex;gap:20px;align-items:flex-start">
+    <div id="tut-nav" style="min-width:240px;max-width:260px;background:var(--bg2);border-radius:12px;padding:14px 0;position:sticky;top:10px;max-height:calc(100vh - 100px);overflow-y:auto;font-size:12.5px">
+      <div style="padding:0 16px 10px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px"><span class="ms" style="font-size:20px;color:var(--accent)">school</span> Base de Conhecimento</div>
+      <div id="tut-menu"></div>
+    </div>
+    <div id="tut-content" style="flex:1;min-width:0"></div>
+  </div>
+</div>
+
+<!-- ══════════ NOTIFICAÇÕES ══════════ -->
+<div id="p-notif-link" hidden>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:var(--fg2)">toc</span><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Notificações › Link de Notificação</div><h1>Link de Notificação</h1><div class="sub-t">Aqui você visualiza todos os seus Link de Notificação</div></div></div>
+  <button class="btn" onclick="showAddNotifLink()"><span class="ms" style="font-size:16px">add</span> NOVO</button></div>
+  <div id="nl-list"></div>
+</div>
+<div id="p-notif-list" hidden>
+  <div class="topbar"><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Notificações › Vendas › Notificações de Vendas</div><h1>Notificações de Vendas</h1><div class="sub-t">Visão consolidada de vendas, reembolsos e trackeamento</div></div>
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <div class="ptabs"><button class="ptab" onclick="setP(this)">Ontem</button><button class="ptab act" onclick="setP(this)">Hoje</button><button class="ptab" onclick="setP(this)">7 Dias</button><button class="ptab" onclick="setP(this)">30 Dias</button><button class="ptab" onclick="setP(this)">90 Dias</button><button class="ptab" onclick="setP(this)">Selecionar datas</button></div>
+    <button class="btn gh" onclick="showToast('Relatório exportado!')"><span class="ms" style="font-size:16px">mail</span> Exportar relatório</button>
+  </div></div>
+  <div class="af" style="margin-bottom:16px;flex-wrap:wrap">
+    <select><option>Tipo: Qualquer</option><option>Venda</option><option>Reembolso</option></select>
+    <select><option>Plataforma: Qualquer</option><option>BuyGoods</option><option>Digistore24</option><option>ClickBank</option><option>Monetizze</option><option>Hotmart</option><option>MaxWeb</option></select>
+    <select><option>Produto: Qualquer</option></select>
+    <select><option>Projeto: Qualquer</option></select>
+    <select><option>Rede: Qualquer</option><option>Google Ads</option><option>Meta Ads</option><option>TikTok Ads</option><option>Taboola</option><option>NewsBreak</option><option>MGID</option><option>RevContent</option></select>
+    <select><option>Águia: Qualquer</option></select>
+    <select><option>Tag Águia: Qualquer</option></select>
+    <select><option>Trackeamento: Qualquer</option></select>
+    <select><option>UTMs: Qualquer</option></select>
+    <button class="btn" onclick="rNList()">Filtrar</button><button class="btn gh" onclick="rNList()">Limpar</button>
+  </div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">payments</span> Receita Bruta <span id="nv-period" style="font-size:12px;color:var(--fg3);font-weight:400"></span></h2>
+  <div id="nv-receita" style="text-align:center;padding:20px;color:var(--fg2);font-size:13px"></div></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">track_changes</span> Rastreamento de Vendas <span class="ms" style="font-size:14px;color:var(--fg3);font-weight:400;margin-left:4px">info</span></h2>
+  <p style="color:var(--fg3);font-size:12px;margin-bottom:8px">Resumo do período</p>
+  <div id="nv-rastreamento" style="text-align:center;padding:20px;color:var(--fg2);font-size:13px"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+    <div class="sc"><h2><span class="ms" style="font-size:18px">show_chart</span> Evolução Temporal</h2>
+    <div id="nv-evolucao" style="text-align:center;padding:20px;color:var(--fg2);font-size:13px"></div></div>
+    <div class="sc"><h2><span class="ms" style="font-size:18px">donut_large</span> Por tipo</h2>
+    <div id="nv-tipo" style="text-align:center;padding:20px;color:var(--fg2);font-size:13px"></div></div>
+  </div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">hub</span> Conversões por Rede</h2>
+  <div id="nv-rede" style="text-align:center;padding:20px;color:var(--fg2);font-size:13px"></div></div>
+  <div class="sc"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h2 style="margin:0"><span class="ms" style="font-size:18px">campaign</span> Por UTM Campaign</h2><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:var(--fg3)">Agrupar por</span><select style="font-size:12px"><option>UTM Campaign</option><option>UTM Source</option><option>UTM Medium</option><option>UTM Content</option><option>UTM Term</option></select></div></div>
+  <div id="nv-utm" style="text-align:center;padding:20px;color:var(--fg2);font-size:13px"></div></div>
+  <div class="sc"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h2 style="margin:0"><span class="ms" style="font-size:18px">receipt_long</span> Notificações</h2><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--fg3)">Ordenar por</span><select style="font-size:12px"><option>Data/Hora</option><option>Valor</option><option>Produto</option></select><span style="font-size:12px;color:var(--fg3)">Ordem</span><select style="font-size:12px"><option>Decrescente</option><option>Crescente</option></select></div></div>
+  <div id="nv-notifs-list" style="text-align:center;padding:20px;color:var(--fg2);font-size:13px"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--brd);margin-top:12px"><span style="font-size:12px;color:var(--fg3)">Mostrando 0 de 0</span><div style="display:flex;gap:6px"><button class="btn gh sm" disabled>Anterior</button><button class="btn gh sm" disabled>Próxima</button></div></div></div>
+</div>
+
+<!-- ══════════ CHECKOUT ══════════ -->
+<div id="p-ck-link" hidden>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:var(--fg2)">toc</span><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Checkout › Link de Checkout</div><h1>Link de Checkout</h1><div class="sub-t">Aqui você visualiza todos os seus Link de Checkout</div></div></div>
+  <button class="btn" onclick="showAddCkLink()"><span class="ms" style="font-size:16px">add</span> NOVO</button></div>
+  <div id="ckl-links"></div>
+</div>
+<div id="p-ck-list" hidden>
+  <div class="topbar"><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Checkout › Lista de Checkouts</div><h1>Lista de Checkouts</h1><div class="sub-t">Aqui você visualiza todos os seus Checkouts</div></div></div>
+  <div class="af" style="margin-bottom:16px">
+    <select><option>Tipo: Qualquer</option><option>Initiate Checkout</option><option>Add Payment Info</option><option>Purchase</option></select>
+    <select><option>Plataforma: Qualquer</option><option>BuyGoods</option><option>Digistore24</option><option>ClickBank</option></select>
+    <select><option>Produto: Qualquer</option></select>
+    <button class="btn" onclick="rCkList()">Filtrar</button><button class="btn gh" onclick="rCkList()">Limpar</button>
+  </div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">shopping_bag</span> Checkouts Registrados</h2>
+  <input class="si" placeholder="Buscar checkout..." oninput="filt(this,'ckl-b')">
+  <div style="overflow-x:auto"><table><thead><tr><th>Data</th><th>Tracker</th><th>Produto</th><th>Etapa</th><th>Status</th><th></th></tr></thead><tbody id="ckl-b"></tbody></table></div></div>
+</div>
+
+<!-- ══════════ INTEGRAÇÕES ══════════ -->
+<div id="p-accounts" hidden>
+  <div class="topbar"><h1>Central de Contas</h1></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">account_circle</span> Contas de Anúncios</h2>
+  <p style="color:var(--fg2);font-size:13px;margin-bottom:16px">Gerencie suas contas conectadas de redes de anúncios.</p>
+  <div id="acc-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px"></div>
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Contas Conectadas</h3>
+  <div id="acc-list"></div></div>
+</div>
+<div id="p-vturb-int" hidden>
+  <div class="topbar"><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Integrações</div><h1>Conectar VTurb Analytics</h1><div class="sub-t">Insira sua chave de API do VTurb para sincronizar métricas nesta conta.</div></div></div>
+  <div class="sc" style="max-width:680px">
+  <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:24px"><div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#0c0c0f;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div><div><h3 style="font-size:15px;font-weight:700;margin-bottom:4px">Abra o painel VTurb</h3><p style="color:var(--fg2);font-size:13px;margin-bottom:8px">Acesse o VTurb e abra a página de configurações da API Analytics.</p><button class="btn sm gh" onclick="window.open('https://vturb.com','_blank')">↗ Abrir VTurb</button></div></div>
+  <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:24px"><div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#0c0c0f;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">2</div><div><h3 style="font-size:15px;font-weight:700;margin-bottom:4px">Gere uma nova chave de API</h3><p style="color:var(--fg2);font-size:13px">No VTurb, crie a chave e copie o valor completo do token.</p></div></div>
+  <div style="display:flex;align-items:flex-start;gap:16px"><div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#0c0c0f;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</div><div style="flex:1"><h3 style="font-size:15px;font-weight:700;margin-bottom:4px">Cole e salve seu token</h3><p style="color:var(--fg2);font-size:13px;margin-bottom:8px">Preencha o campo abaixo para salvar o token e completar a integração.</p><div class="af"><input id="vturb-token" placeholder="Token VTurb" style="flex:1"><button class="btn" onclick="saveVturbToken()">Salvar chave</button></div></div></div>
+  </div>
+</div>
+<div id="p-apikeys" hidden>
+  <div class="topbar"><h1>API Keys</h1></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">key</span> Chaves de API</h2>
+  <p style="color:var(--fg2);font-size:13px;margin-bottom:12px">Gerencie suas chaves de API para integrações externas.</p>
+  <div class="af"><input id="ak-name" placeholder="Nome da chave"><button class="btn" onclick="genApiKey()">Gerar Chave</button></div>
+  <div style="overflow-x:auto"><table><thead><tr><th>Nome</th><th>Chave</th><th>Criada em</th><th></th></tr></thead><tbody id="ak-b"></tbody></table></div></div>
+</div>
+
+<!-- ══════════ AVANÇADO ══════════ -->
+<div id="p-producer-url" hidden>
+  <div class="topbar"><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">URL Produtor</div><h1>URL Produtor</h1><div class="sub-t">Visualize todas as suas URLs de produtor aqui</div></div><button class="btn" onclick="addProducerUrl()">+ Nova URL</button></div>
+  <div class="sc"><div class="af" style="margin-bottom:12px"><input id="pu-search" placeholder="Buscar URL..." oninput="rPU()" style="flex:1"><select id="pu-pp" onchange="rPU()"><option>20 por página</option><option>50 por página</option></select></div>
+  <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>URL</th><th>Tracker</th><th>Status</th><th>Data</th><th></th></tr></thead><tbody id="pu-b"></tbody></table></div>
+  <div id="pu-pag" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px;font-size:12px;color:var(--fg2)"></div></div>
+</div>
+<div id="p-reports" hidden>
+  <div class="topbar"><h1>Relatórios</h1></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">description</span> Gerar Relatório</h2>
+  <div class="af"><select id="rpt-type"><option>Tipo: Completo</option><option>Financeiro</option><option>Tráfego</option><option>Conversões</option></select>
+  <select id="rpt-period"><option>Período: Últimos 30 dias</option><option>Últimos 7 dias</option><option>Este mês</option><option>Mês passado</option></select>
+  <select id="rpt-format"><option>Formato: CSV</option><option>PDF</option></select>
+  <button class="btn" onclick="genReport()"><span class="ms" style="font-size:16px">download</span> Gerar</button></div>
+  <div id="rpt-result"></div></div>
+</div>
+<div id="p-domains" hidden>
+  <div class="topbar"><h1>Domínios Próprios</h1></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">language</span> Seus Domínios</h2>
+  <p style="color:var(--fg2);font-size:13px;margin-bottom:12px">Configure domínios próprios para tracking personalizado.</p>
+  <div class="af"><input id="dom-url" placeholder="dominio.com"><button class="btn" onclick="addDomain()">+ Adicionar</button></div>
+  <div style="overflow-x:auto"><table><thead><tr><th>Domínio</th><th>Status</th><th>SSL</th><th></th></tr></thead><tbody id="dom-b"></tbody></table></div></div>
+</div>
+<div id="p-taxes" hidden>
+  <div class="topbar"><h1>Impostos</h1></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">bar_chart</span> Configuração de Impostos</h2>
+  <p style="color:var(--fg2);font-size:13px;margin-bottom:12px">Configure os impostos aplicados sobre suas vendas para cálculo automático no dashboard financeiro.</p>
+  <div class="af"><input id="tax-name" placeholder="Nome do imposto"><input id="tax-pct" placeholder="Percentual (%)" type="number"><button class="btn" onclick="addTax()">+ Adicionar</button></div>
+  <div style="overflow-x:auto"><table><thead><tr><th>Imposto</th><th>%</th><th></th></tr></thead><tbody id="tax-b"></tbody></table></div></div>
+</div>
+<div id="p-fees" hidden>
+  <div class="topbar"><h1>Taxas</h1></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">campaign</span> Taxas da Plataforma</h2>
+  <p style="color:var(--fg2);font-size:13px;margin-bottom:12px">Configure as taxas cobradas pelas plataformas de afiliados.</p>
+  <div class="af"><select id="fee-plat"><option>BuyGoods</option><option>Digistore24</option><option>ClickBank</option></select><input id="fee-pct" placeholder="Taxa (%)" type="number"><button class="btn" onclick="addFee()">+ Adicionar</button></div>
+  <div style="overflow-x:auto"><table><thead><tr><th>Plataforma</th><th>Taxa</th><th></th></tr></thead><tbody id="fee-b"></tbody></table></div></div>
+</div>
+<div id="p-products" hidden>
+  <div class="topbar"><h1>Produtos</h1><button class="btn" onclick="showAddProduct()">+ NOVO</button></div>
+  <div class="sc"><h2><span class="ms" style="font-size:18px">table_chart</span> Lista de Produtos</h2>
+  <div class="af"><input id="prod-search" placeholder="Buscar produto..." oninput="rProd()"><select id="prod-net-filter" onchange="rProd()"><option value="">Rede: Todas</option><option>BuyGoods</option><option>Digistore24</option><option>ClickBank</option><option>Monetizze</option><option>Hotmart</option><option>MaxWeb</option></select></div>
+  <div style="overflow-x:auto"><table><thead><tr><th>Produto</th><th>Rede</th><th>Payout</th><th>Trackers</th><th>Conversões</th><th>Status</th><th></th></tr></thead><tbody id="prod-b"></tbody></table></div></div>
+</div>
+
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center">
+<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:380px;max-width:90vw;text-align:center">
+  <div style="width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px">🦅</div>
+  <h1 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px">Águia <span style="color:var(--accent)">Tracker</span></h1>
+  <p style="color:var(--fg2);font-size:13px;margin-bottom:24px">Sistema de rastreamento profissional</p>
+  <div id="login-form">
+    <input id="auth-email" type="email" placeholder="Email" style="width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--fg);font-size:14px;margin-bottom:10px;outline:none">
+    <input id="auth-pass" type="password" placeholder="Senha" style="width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--fg);font-size:14px;margin-bottom:10px;outline:none">
+    <input id="auth-name" type="text" placeholder="Seu nome (apenas cadastro)" style="width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--fg);font-size:14px;margin-bottom:16px;outline:none;display:none">
+    <div id="auth-error" style="color:var(--red);font-size:12px;margin-bottom:10px;display:none"></div>
+    <button id="auth-btn" onclick="doLogin()" style="width:100%;padding:12px;background:var(--accent);color:#0c0c0f;font-weight:700;font-size:14px;border:none;border-radius:10px;cursor:pointer;margin-bottom:12px">Entrar</button>
+    <p style="color:var(--fg3);font-size:12px">Não tem conta? <a href="#" onclick="toggleAuthMode(event)" style="color:var(--accent);text-decoration:none" id="auth-toggle">Criar conta</a></p>
+  </div>
+</div>
+</div>
+
+<script>
+// AUTH
+let authMode='login';
+function toggleAuthMode(e){e.preventDefault();authMode=authMode==='login'?'register':'login';
+document.getElementById('auth-btn').textContent=authMode==='login'?'Entrar':'Criar Conta';
+document.getElementById('auth-toggle').textContent=authMode==='login'?'Criar conta':'Já tenho conta';
+document.getElementById('auth-name').style.display=authMode==='register'?'block':'none';
+document.getElementById('auth-error').style.display='none'}
+
+async function doLogin(){
+const email=document.getElementById('auth-email').value.trim();
+const pass=document.getElementById('auth-pass').value;
+const name=document.getElementById('auth-name').value.trim();
+if(!email||!pass){showAuthError('Preencha email e senha');return}
+try{
+const endpoint=authMode==='login'?'/api/auth/login':'/api/auth/register';
+const body=authMode==='login'?{email,password:pass}:{email,password:pass,name};
+const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'include'});
+const data=await r.json();
+if(!r.ok){showAuthError(data.error||'Erro');return}
+document.getElementById('login-screen').style.display='none';
+initDashboard();
+}catch(e){showAuthError('Erro de conexão')}}
+
+function showAuthError(msg){const el=document.getElementById('auth-error');el.textContent=msg;el.style.display='block'}
+
+async function checkAuth(){
+try{const r=await fetch('/api/auth/me',{credentials:'include'});
+if(r.ok){document.getElementById('login-screen').style.display='none';initDashboard();return}
+}catch(e){}
+document.getElementById('login-screen').style.display='flex'}
+
+// API helper
+async function api(path,opts={}){
+const r=await fetch(path,{credentials:'include',...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})},...(opts.body?{body:JSON.stringify(opts.body)}:{})});
+if(r.status===401){document.getElementById('login-screen').style.display='flex';throw new Error('auth')}
+return r.json()}
+
+let S={projects:[],trackers:[],tags:[],campaigns:[],products:[],adAccounts:[],vsls:[],domains:[],taxes:[],fees:[],apikeys:[],notifs:[],checkouts:[],links:[],stats:[],visits:[],producerUrls:[]};
+const allKeys=['projects','trackers','tags','campaigns','products','adAccounts','vsls','domains','taxes','fees','apikeys','notifs','checkouts','links','stats','visits','producerUrls'];
+
+// Load from API + localStorage fallback for non-API data
+async function initDashboard(){
+try{
+  const [tags, products, projects, dashboard] = await Promise.all([
+    api('/api/tags'), api('/api/products'), api('/api/projects'), api('/api/dashboard?period=today')
+  ]);
+  S.tags = tags.map(t=>({id:t.id,name:t.name,funnel:t.funnel,network:t.network,visits:t.visits||0,clicks:t.clicks||0,status:t.status,date:t.created_at}));
+  S.products = products.map(p=>({id:'o'+p.id,name:p.name,network:p.network,payout:p.payout,url:p.url,status:p.status}));
+  S.projects = projects.map(p=>({id:'p'+p.id,name:p.name,date:new Date(p.created_at).toLocaleDateString('pt-BR'),active:!!p.active,desc:p.description}));
+  S.dashboardData = dashboard;
+}catch(e){console.log('API load error, using local data:',e)}
+// Load remaining local-only data
+try{const d=localStorage.getItem('aguia_s');if(d){const local=JSON.parse(d);
+['campaigns','adAccounts','vsls','domains','taxes','fees','apikeys','notifs','checkouts','links','stats','visits','trackers','producerUrls'].forEach(k=>{if(local[k]&&local[k].length)S[k]=local[k]})}}catch(e){}
+allKeys.forEach(k=>{if(!S[k])S[k]=[]});
+if(!S.campaigns.length)seedLocal();
+sv();
+rKpi();rRat();rEco();rFin();go('home');
+// Refresh dashboard every 30s
+setInterval(async()=>{try{S.dashboardData=await api('/api/dashboard?period=today');rKpi()}catch(e){}},30000)}
+
+function seedLocal(){
+  S.campaigns=[{id:'c1',name:'GlucoTrust-Search US',prodId:'o1',budget:150,clicks:342,conv:8,rev:1080,cost:456,status:'active'},
+    {id:'c2',name:'Nagano-Search US',prodId:'o2',budget:100,clicks:218,conv:5,rev:550,cost:312,status:'active'},
+    {id:'c3',name:'Sugar Def-Search CA',prodId:'o3',budget:80,clicks:156,conv:3,rev:444,cost:198,status:'paused'}];
+  S.stats=[{day:'Dom',sales:3,rev:405},{day:'Seg',sales:7,rev:945},{day:'Ter',sales:5,rev:675},{day:'Qua',sales:9,rev:1215},{day:'Qui',sales:4,rev:540},{day:'Sex',sales:8,rev:1080},{day:'Sáb',sales:6,rev:810}];
+  S.links=[{id:'lk24163',type:'notif',platform:'CartPanda',tracker:'CartPanda',project:'GuruMedia',url:'https://aguia-tracker.com/postback?platform=cartpanda&tracker=CartPanda&tid={transaction_id}&amount={amount}&status={status}&click_id={click_id}',date:'11/11/2026 15:55:48'},{id:'lk23777',type:'notif',platform:'MaxWeb FE|IPE',tracker:'MaxWeb',project:'MaxWeb',url:'https://aguia-tracker.com/postback?platform=maxweb&tracker=MaxWeb&tid={transaction_id}&amount={amount}&status={status}',date:'13/12/2025 00:48:33'},{id:'lk23720',type:'notif',platform:'GuruMedia',tracker:'GuruMedia',project:'GuruMedia',url:'https://aguia-tracker.com/postback?platform=gurumedia&tracker=GuruMedia&tid={transaction_id}&amount={amount}',date:'11/12/2025 13:13:55'},{id:'ck10001',type:'checkout',platform:'BuyGoods',tracker:'AdCombo',url:'https://checkout.buygoods.com?aguia_ck=1&tracker=AdCombo',date:'10/11/2026 12:30:00'},{id:'ck10002',type:'checkout',platform:'Digistore24',tracker:'MediaScalers',url:'https://checkout.digistore24.com?aguia_ck=1&tracker=MediaScalers',date:'09/11/2026 09:15:00'}];sv()}}
+function sv(){try{localStorage.setItem('aguia_s',JSON.stringify(S))}catch(e){}}
+
+// seed() removed — data comes from API now
+
+// MODAL
+function openModal(title,bodyHtml){document.getElementById('modal-title').querySelector('span').textContent=title;
+document.getElementById('modal-body').innerHTML=bodyHtml;document.getElementById('modal-ov').classList.add('open')}
+function closeModal(){document.getElementById('modal-ov').classList.remove('open')}
+
+// TOAST
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+setTimeout(()=>t.classList.remove('show'),2500)}
+
+// NAV
+function go(p){document.querySelectorAll('[id^="p-"]').forEach(e=>{if(e.id!=='modal-ov')e.hidden=true});
+document.getElementById('p-'+p).hidden=false;
+document.querySelectorAll('.ni[data-p]').forEach(n=>n.classList.toggle('act',n.dataset.p===p));
+document.querySelector('.ni[data-p="home"]').classList.toggle('act',p==='home');
+document.querySelector('.sb').classList.remove('open');document.querySelector('.sbo').classList.remove('open');
+if(p==='financial'){populateFinFilters();rFin()}if(p==='trackers')rTk();if(p==='projects')rPj();if(p==='tags')rTags();if(p==='tutorial')renderTutorial();
+if(p==='notif-list')rNList();if(p==='ck-list')rCkList();if(p==='products')rProd();if(p==='taxes')rTax();
+if(p==='fees')rFees();if(p==='domains')rDom();if(p==='apikeys')rAk();if(p==='vturb')rVsl();if(p==='producer-url')rPU();
+if(p==='gads')rAds('google');if(p==='meta')rAds('meta');if(p==='newsbreak')rAds('newsbreak');if(p==='taboola')rAds('taboola');if(p==='tiktok')rAds('tiktok');if(p==='mgid')rAds('mgid');if(p==='revcontent')rAds('revcontent');if(p==='accounts'){rAccGrid();rAccounts()}
+if(p==='notif-link'){populateTrackerSelects();rNlList()}if(p==='ck-link'){populateTrackerSelects();rCkLinks()}
+if(p==='criar-campanha'){const sel=document.getElementById('ia-prod');if(sel)sel.innerHTML=S.products.map(p=>'<option>'+p.name+'</option>').join('')}}
+function toggleSub(el){el.classList.toggle('open');el.nextElementSibling.classList.toggle('open')}
+function getCur(ctx){const b=ctx?.closest('.eco,.topbar,[id^="p-"]')?.querySelector('.ptab.act');return(b&&b.textContent==='BRL')?{s:'R$',r:5.65}:{s:'$',r:1}}
+function cur$(v,ctx){const c=getCur(ctx);return c.s+' '+(v*c.r).toLocaleString('pt-BR',{minimumFractionDigits:2})}
+function setP(el){el.parentElement.querySelectorAll('.ptab,.vtab').forEach(t=>t.classList.remove('act'));el.classList.add('act');rEco();rFin()}
+function setVTab(el){el.parentElement.querySelectorAll('.vtab').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
+function setTbtn(el){el.parentElement.querySelectorAll('.tbtn').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
+function filt(inp,id){const q=inp.value.toLowerCase();document.querySelectorAll('#'+id+' tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q)?'':'none')}
+function cpTxt(t){try{navigator.clipboard.writeText(t);showToast('Copiado!')}catch(e){}}
+function getTagScriptCode(id){const base=location.origin;return '<!-- Águia Tracker -->\n<scri'+'pt>\n(function(){\n  var ag_id="'+id+'";\n  var ag_url="'+base+'/t/"+ag_id;\n  var vid=localStorage.getItem("ag_vid")||"v_"+Math.random().toString(36).substr(2,12);\n  localStorage.setItem("ag_vid",vid);\n  var sid="s_"+Math.random().toString(36).substr(2,8);\n  var params=new URLSearchParams(window.location.search);\n  function send(e,extra){\n    var u=ag_url+"?e="+e+"&vid="+vid+"&sid="+sid+"&url="+encodeURIComponent(location.href)+"&ref="+encodeURIComponent(document.referrer);\n    ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(function(k){\n      var v=params.get(k);if(v)u+="&"+k+"="+encodeURIComponent(v);\n    });\n    if(extra)u+="&"+extra;\n    new Image().src=u;\n  }\n  send("pageview");\n  document.addEventListener("click",function(ev){\n    var a=ev.target.closest("a");\n    if(a&&a.href)send("click","target="+encodeURIComponent(a.href));\n  });\n  window.aguia={track:function(e,data){var x="";if(data)Object.keys(data).forEach(function(k){x+="&"+k+"="+encodeURIComponent(data[k])});send(e,x)}};\n})();\n</scri'+'pt>'}
+function cpTagScript(id){cpTxt(getTagScriptCode(id));showToast('Código copiado!')}
+function showInstallScript(id){const t=S.tags.find(x=>x.id===id);if(!t)return;
+const ov=document.getElementById('modal-ov');
+document.getElementById('modal-title').querySelector('span').textContent='Instalar ou verificar script';
+document.getElementById('modal-body').innerHTML='<div class="script-modal">'+
+'<div class="script-tabs"><button class="script-tab act" onclick="switchScriptTab(this,\'install-pane\')">Instalar</button>'+
+'<button class="script-tab" onclick="switchScriptTab(this,\'verify-pane\')">Verificar</button></div>'+
+'<div id="install-pane"><h2 style="font-family:Space Grotesk,sans-serif;font-size:20px;font-weight:800;margin-bottom:8px">Bora Vender!!</h2>'+
+'<div class="script-badge">Script da Águia TAG!</div>'+
+'<p style="font-size:13px;color:var(--fg2);margin-bottom:4px">Copie o código abaixo e insira no início da sua página, antes da tag &lt;/head&gt;</p>'+
+'<div class="script-code-wrap"><div class="script-code-bar"><div class="script-code-dots"><span></span><span></span><span></span></div>'+
+'<span class="script-code-file">index.html</span><span class="script-code-lang">HTML</span></div>'+
+'<div class="script-code-body"><span class="tag">&lt;script</span>\n  <span class="attr">defer</span>\n  <span class="attr">src</span>=<span class="val">"https://cdn.aguia-tracker.com/tag.js"</span>\n  <span class="attr">data-tag-id</span>=<span class="val">"'+t.id+'"</span>\n  <span class="attr">data-event-host</span>=<span class="val">"api.aguia-tracker.com"</span>\n  <span class="attr">data-plat-params</span>=<span class="val">"sub1,sub2,sub3,sub4,sub5"</span>\n<span class="tag">&gt;&lt;/script&gt;</span></div></div>'+
+'<button class="script-copy-btn" onclick="cpTagScript(\''+t.id+'\')"><span class="ms" style="font-size:18px">content_copy</span> Copiar código</button></div>'+
+'<div id="verify-pane" hidden><h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Antes de verificar, certifique-se de que:</h3>'+
+'<ul class="script-check-list"><li>A tag do script está na seção &lt;head&gt; da sua página</li>'+
+'<li>Suas alterações foram implantadas em produção</li>'+
+'<li>Seu domínio está acessível pela internet</li></ul>'+
+'<input class="si" style="margin-bottom:14px" placeholder="URL da página*" id="verify-url">'+
+'<button class="script-copy-btn" onclick="showToast(\'Verificação simulada — aguarde...\')">Verificar Instalação</button></div></div>';
+ov.classList.add('open')}
+function switchScriptTab(btn,paneId){btn.parentElement.querySelectorAll('.script-tab').forEach(t=>t.classList.remove('act'));btn.classList.add('act');
+document.getElementById('install-pane').hidden=paneId!=='install-pane';
+document.getElementById('verify-pane').hidden=paneId!=='verify-pane'}
+
+// SORT COLUMNS
+let sortState={};
+function sortCol(tbId,colIdx){const key=tbId+colIdx;sortState[key]=!sortState[key];
+const rows=Array.from(document.querySelectorAll('#'+tbId+' tr'));
+rows.sort((a,b)=>{const av=parseFloat(a.cells[colIdx]?.textContent.replace(/[^0-9.-]/g,''))||0;
+const bv=parseFloat(b.cells[colIdx]?.textContent.replace(/[^0-9.-]/g,''))||0;
+return sortState[key]?av-bv:bv-av});
+const tb=document.getElementById(tbId);rows.forEach(r=>tb.appendChild(r))}
+
+// POPULATE TRACKER SELECTS
+function populateTrackerSelects(){
+['nl-tracker','ck-tracker'].forEach(id=>{const sel=document.getElementById(id);if(!sel)return;
+sel.innerHTML='<option value="">Selecionar tracker...</option>'+S.trackers.map(t=>'<option value="'+t.id+'">'+t.name+'</option>').join('')})}
+
+// POPULATE FINANCIAL FILTERS
+function populateFinFilters(){
+const pj=document.getElementById('fin-project'),pr=document.getElementById('fin-product'),ad=document.getElementById('fin-adacc');
+if(pj){pj.innerHTML='<option value="">Projeto: Qualquer</option>'+S.projects.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')}
+if(pr){pr.innerHTML='<option value="">Produto: Qualquer</option>'+S.products.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')}
+if(ad){ad.innerHTML='<option value="">Conta de Anúncio: Qualquer</option>'+S.adAccounts.map(a=>'<option value="'+a.id+'">'+a.name+' ('+a.type+')</option>').join('')}}
+function clearFinFilters(){document.getElementById('fin-period').selectedIndex=0;document.getElementById('fin-project').value='';
+document.getElementById('fin-product').value='';document.getElementById('fin-adacc').value='';rFin()}
+function setFinCountryTab(el,tab){el.parentElement.querySelectorAll('.ptab').forEach(t=>t.classList.remove('act'));el.classList.add('act');
+document.getElementById('fin-country-ranking').hidden=(tab!=='ranking');document.getElementById('fin-country-mapa').hidden=(tab!=='mapa')}
+function rFinHourlyCharts(){const hrs=Array.from({length:24},(_,i)=>({h:i.toString().padStart(2,'0')+':00',v:0}));
+['fin-rev-hour','fin-sales-hour','fin-profit-hour'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=hrs.map(h=>'<div style="flex:1;background:var(--accent);opacity:.3;min-height:2px;border-radius:2px 2px 0 0" title="'+h.h+': $ 0,00"></div>').join('')})}
+
+// KPIs
+function mkKpi(k){const r=15,c=2*Math.PI*r,o=c*(1-k.p/100);
+return'<div class="kc"><div class="ki" style="background:'+k.bg+'"><span class="ms" style="color:#fff;font-size:20px">'+k.ic+'</span></div>'+
+'<div class="kb"><div class="kl">'+k.l+'</div><div class="kv">'+(typeof k.v==='number'?k.v.toLocaleString():k.v)+'</div><div style="font-size:10px;color:var(--fg3);margin-top:1px">Total</div></div>'+
+'<div class="kp"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="3.5"/>'+
+'<circle cx="20" cy="20" r="'+r+'" fill="none" stroke="'+k.cl+'" stroke-width="3.5" stroke-dasharray="'+c+'" stroke-dashoffset="'+o+'" stroke-linecap="round"/></svg>'+
+'<span class="pp">'+k.p+'%</span></div></div>'}
+function rKpi(){const tv=S.trackers.reduce((s,t)=>s+t.visits,0),tc=S.trackers.reduce((s,t)=>s+t.clicks,0),
+  br=tv?Math.round((1-tc/tv)*100):0;
+const row1=[{l:'Visitas Pagas',v:tv,p:100,ic:'payments',bg:'#6366f1',cl:'#818cf8'},
+  {l:'Cliques Pagos',v:tc,p:tv?Math.round(tc/tv*100):0,ic:'mouse',bg:'#3b82f6',cl:'#60a5fa'},
+  {l:'Visitas Orgânicas',v:0,p:0,ic:'eco',bg:'#ec4899',cl:'#f472b6'}];
+const row2=[{l:'Cliques Orgânicos',v:0,p:0,ic:'nature',bg:'#22c55e',cl:'#4ade80'},
+  {l:'Taxa de Fuga',v:br+'%',p:br,ic:'trending_down',bg:'#f97316',cl:'#fb923c'}];
+document.getElementById('kpi-g').innerHTML=row1.map(mkKpi).join('');
+document.getElementById('kpi-g2').innerHTML=row2.map(mkKpi).join('')}
+
+// Trackers table (home)
+function rRat(){document.getElementById('rtb').innerHTML=S.trackers.map(t=>{const fg=t.visits?Math.round((1-t.clicks/t.visits)*100):0;
+return'<tr><td><span style="display:inline-flex;align-items:center;gap:8px"><span style="width:26px;height:26px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0c0c0f">'+t.name[0]+'</span>'+t.name+'</span></td>'+
+'<td>'+t.visits+'</td><td>'+t.clicks+'</td><td>'+fg+' %</td></tr>'}).join('')}
+
+// Eco
+function rEco(){const sv2=S.campaigns.reduce((s,c)=>s+Math.floor(c.cost*.12),0);
+const b=document.querySelector('.eco .ptab.act');
+const isBRL=b&&b.textContent==='BRL';
+const val=isBRL?sv2*5.65:sv2;
+const prefix=isBRL?'R$':'US$';
+document.getElementById('eco-v').textContent=prefix+' '+val.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+
+// Camp summary
+function rCampSum(){const a=S.campaigns.filter(c=>c.status==='active');
+if(!a.length){document.getElementById('camp-sum').innerHTML='<div style="text-align:center;padding:24px"><div style="font-size:15px;font-weight:700;color:var(--fg);margin-bottom:4px">Ahhhh! Nenhum resultado encontrado!</div><p style="color:var(--fg2);font-size:13px">Não há campanhas com economia registrada no período selecionado.</p></div>';return}
+document.getElementById('camp-sum').innerHTML=a.map(c=>{const roi=c.cost?Math.round((c.rev-c.cost)/c.cost*100):0;
+return'<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">'+
+'<span style="font-size:12.5px;font-weight:500">'+c.name+'</span><span class="badge '+(roi>=0?'gr':'rd')+'">'+(roi>=0?'+':'')+roi+'% ROI</span></div>'}).join('')}
+
+// Financial
+function rFin(){const filtProd=document.getElementById('fin-product')?.value;
+let camps=S.campaigns;
+if(filtProd)camps=camps.filter(c=>c.prodId===filtProd);
+const tr=camps.reduce((s,c)=>s+c.rev,0),tc=camps.reduce((s,c)=>s+c.cost,0),
+  tn=camps.reduce((s,c)=>s+c.conv,0),pf=tr-tc,roi=tc?((tr-tc)/tc*100):0,roas=tc?(tr/tc):0,
+  cpa=tn?(tc/tn):0,aov=tn?(tr/tn):0,mg=tr?((pf/tr)*100):0;
+const taxTotal=S.taxes.reduce((s,t)=>s+t.pct,0),taxVal=tr*(taxTotal/100),
+  feeTotal=S.fees.reduce((s,f)=>s+f.pct,0),feeVal=tr*(feeTotal/100);
+const fb=document.querySelector('#p-financial .ptabs .ptab.act');
+const isBRL=fb&&fb.textContent==='BRL';
+const rt=isBRL?5.65:1,ps=isBRL?'R$':'$';
+function f$(v){return ps+' '+(v*rt).toLocaleString('pt-BR',{minimumFractionDigits:2})}
+const m=[{l:'CPA',i:'person_add',v:f$(cpa)},{l:'Valor de Impostos',i:'monetization_on',v:f$(taxVal)},{l:'Imposto Meta Ads',i:'monetization_on',v:f$(0)},
+  {l:'Faturamento Líquido',i:'monetization_on',v:f$(pf-taxVal-feeVal),c:(pf-taxVal-feeVal)>=0?'gr':'rd'},{l:'Vendas Upsell',i:'monetization_on',v:'0'},{l:'ROI',i:'percent',v:roi.toFixed(0)+'%',c:roi>=0?'gr':'rd'},
+  {l:'Valor de Taxas',i:'monetization_on',v:f$(feeVal)},{l:'Vendas Front',i:'monetization_on',v:tn.toString()},{l:'Valor de Reembolsos Não Rastreados',i:'monetization_on',v:f$(0)},
+  {l:'Custo de Anúncios',i:'payments',v:f$(tc)},{l:'ROAS',i:'currency_exchange',v:roas.toFixed(2),c:roas>=1?'gr':'rd'},{l:'Custo Total',i:'payments',v:f$(tc)},
+  {l:'Custo de Produtos',i:'payments',v:f$(0)},{l:'Impostos Totais',i:'monetization_on',v:f$(taxVal)},{l:'Valor de Vendas Não Rastreadas',i:'monetization_on',v:f$(0)},
+  {l:'Valor de Vendas Front',i:'monetization_on',v:f$(tr)},{l:'Ticket Médio (AOV)',i:'receipt_long',v:f$(aov)},{l:'Margem de Lucro',i:'percent',v:mg.toFixed(0)+'%',c:mg>=0?'gr':'rd'},
+  {l:'Valor Total de Reembolsos',i:'monetization_on',v:f$(0)},{l:'Reembolsos',i:'monetization_on',v:'0'},{l:'Vendas Não Rastreadas',i:'monetization_on',v:'0'},
+  {l:'Valor de Vendas Upsell',i:'monetization_on',v:f$(0)},{l:'Resultado',i:'calculate',v:f$(pf),c:pf>=0?'gr':'rd'},{l:'EPC',i:'account_tree',v:f$(0)}];
+document.getElementById('fin-g').innerHTML=m.map(x=>'<div class="fc"><div class="fl"><span class="ms" style="font-size:16px;color:var(--accent)">'+x.i+'</span>'+x.l+'</div><div class="fv '+(x.c||'')+'">'+x.v+'</div></div>').join('');
+const st=S.stats.length?S.stats:[{day:'D',sales:0}],mx=Math.max(...st.map(s=>s.sales),1);
+document.getElementById('wc').innerHTML=st.map(s=>'<div class="cb" style="height:'+(s.sales/mx)*100+'%"><span class="tt">'+s.day+': '+s.sales+' vendas · '+ps+' '+(parseFloat(s.rev||0)*rt).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span></div>').join('');
+document.getElementById('wl').innerHTML=st.map(s=>'<span>'+s.day+'</span>').join('');
+const prods=S.products.map(o=>{const cs=camps.filter(c=>c.prodId===o.id);
+return{n:o.name,s:cs.reduce((a,c)=>a+c.conv,0),r:cs.reduce((a,c)=>a+c.rev,0)}}).sort((a,b)=>b.r-a.r);
+document.getElementById('tp').innerHTML=prods.map(p=>'<tr><td>'+p.n+'</td><td>'+p.s+'</td><td>$ '+p.r.toLocaleString()+'</td></tr>').join('');rFinHourlyCharts()}
+
+// Trackers page
+function rTk(){document.getElementById('tk-list').innerHTML=S.trackers.map(t=>{
+const pj=S.projects.find(p=>p.id===t.projectId);
+return'<div class="sc" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+'<div><div style="font-size:11px;color:var(--fg3)">ID '+t.id+(pj?' · Projeto: '+pj.name:'')+'</div><div style="font-size:15px;font-weight:600;margin-top:2px">'+t.name+'</div>'+
+'<div style="font-size:12px;color:var(--fg2)">'+t.network+' · '+t.visits+' visitas · '+t.clicks+' cliques</div></div>'+
+'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+'<span class="badge '+(t.active?'gr':'rd')+'">'+(t.active?'ATIVO':'INATIVO')+'</span>'+
+'<span class="badge" style="background:var(--bg4);font-size:10px;padding:4px 8px">CONVERSÃO AUT.</span><label class="tg"><input type="checkbox" '+(t.convAuto?'checked':'')+' onchange="toggleTk(\''+t.id+'\',\'convAuto\',this.checked)"><span class="sl"></span></label>'+
+'<span class="badge" style="background:var(--bg4);font-size:10px;padding:4px 8px">CHECKOUT AUT.</span><label class="tg"><input type="checkbox" '+(t.ckAuto?'checked':'')+' onchange="toggleTk(\''+t.id+'\',\'ckAuto\',this.checked)"><span class="sl"></span></label>'+
+'<span class="badge" style="background:var(--bg4);font-size:10px;padding:4px 8px">BLOQUEIO AUT. DE IP</span><label class="tg"><input type="checkbox" '+(t.blockIp?'checked':'')+' onchange="toggleTk(\''+t.id+'\',\'blockIp\',this.checked)"><span class="sl"></span></label>'+
+'<button class="btn sm gh" onclick="showViewTracker(\''+t.id+'\')" title="Visualizar"><span class="ms" style="font-size:18px">visibility</span></button>'+
+'<button class="btn sm gh" onclick="cpTxt(\'Tracker: '+t.name+' | ID: '+t.id+'\');showToast(\'Copiado!\')" title="Copiar"><span class="ms" style="font-size:18px">content_copy</span></button>'+
+'<button class="btn sm gh" onclick="showEditTracker(\''+t.id+'\')" title="Editar"><span class="ms" style="font-size:18px">edit</span></button>'+
+'<button class="btn sm dn" onclick="rmTk(\''+t.id+'\')" title="Excluir"><span class="ms" style="font-size:18px">delete_outline</span></button>'+
+'</div></div></div>'}).join('')}
+function toggleTk(id,k,v){const t=S.trackers.find(x=>x.id===id);if(t)t[k]=v;sv();showToast('Tracker atualizado')}
+function rmTk(id){S.trackers=S.trackers.filter(x=>x.id!==id);sv();rTk();rKpi();rRat();showToast('Tracker removido')}
+
+// ADD TRACKER MODAL
+function showAddTracker(){openModal('Novo Tracker',
+'<div class="mf"><label>Nome do Tracker</label><input id="m-tk-name" placeholder="Nome"><label>Rede</label><select id="m-tk-net"><option>AdCombo</option><option>MediaScalers</option><option>Digistore24</option><option>BuyGoods</option><option>ClickBank</option><option>MaxWeb</option></select>'+
+'<label>Projeto</label><select id="m-tk-proj"><option value="">Nenhum</option>'+S.projects.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')+'</select>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doAddTracker()">Criar Tracker</button></div></div>')}
+function doAddTracker(){const n=document.getElementById('m-tk-name').value.trim(),net=document.getElementById('m-tk-net').value,proj=document.getElementById('m-tk-proj').value;
+if(!n){showToast('Digite o nome do tracker');return}
+S.trackers.push({id:'t'+Date.now(),name:n,network:net,active:true,convAuto:true,ckAuto:true,blockIp:true,visits:0,clicks:0,projectId:proj});
+sv();closeModal();rTk();rKpi();rRat();showToast('Tracker criado!')}
+
+// VIEW TRACKER MODAL
+function showViewTracker(id){const t=S.trackers.find(x=>x.id===id);if(!t)return;
+const pj=S.projects.find(p=>p.id===t.projectId);const fg=t.visits?Math.round((1-t.clicks/t.visits)*100):0;
+const vis=S.visits.filter(v=>v.trackerId===id);
+openModal('Detalhes: '+t.name,
+'<div class="visit-result"><div class="vr-row"><span>ID</span><span>'+t.id+'</span></div>'+
+'<div class="vr-row"><span>Rede</span><span>'+t.network+'</span></div>'+
+'<div class="vr-row"><span>Projeto</span><span>'+(pj?pj.name:'—')+'</span></div>'+
+'<div class="vr-row"><span>Visitas</span><span>'+t.visits+'</span></div>'+
+'<div class="vr-row"><span>Cliques</span><span>'+t.clicks+'</span></div>'+
+'<div class="vr-row"><span>Taxa de Fuga</span><span>'+fg+'%</span></div>'+
+'<div class="vr-row"><span>Conv. Automática</span><span>'+(t.convAuto?'Sim':'Não')+'</span></div>'+
+'<div class="vr-row"><span>Checkout Aut.</span><span>'+(t.ckAuto?'Sim':'Não')+'</span></div>'+
+'<div class="vr-row"><span>Bloqueio IP</span><span>'+(t.blockIp?'Sim':'Não')+'</span></div></div>'+
+(vis.length?'<h4 style="margin-top:14px;font-size:13px;font-weight:600;color:var(--fg2)">Últimas Visitas</h4>'+
+vis.slice(0,10).map(v=>'<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)">'+v.date+' · '+v.ip+' · '+v.country+' · '+(v.click?'Clicou':'Sem clique')+'</div>').join(''):''))}
+
+// EDIT TRACKER MODAL
+function showEditTracker(id){const t=S.trackers.find(x=>x.id===id);if(!t)return;
+openModal('Editar Tracker',
+'<div class="mf"><label>Nome</label><input id="m-etk-name" value="'+t.name+'"><label>Rede</label><input id="m-etk-net" value="'+t.network+'">'+
+'<label>Projeto</label><select id="m-etk-proj"><option value="">Nenhum</option>'+S.projects.map(p=>'<option value="'+p.id+'"'+(p.id===t.projectId?' selected':'')+'>'+p.name+'</option>').join('')+'</select>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doEditTracker(\''+id+'\')">Salvar</button></div></div>')}
+function doEditTracker(id){const t=S.trackers.find(x=>x.id===id);if(!t)return;
+t.name=document.getElementById('m-etk-name').value.trim()||t.name;
+t.network=document.getElementById('m-etk-net').value.trim()||t.network;
+t.projectId=document.getElementById('m-etk-proj').value;
+sv();closeModal();rTk();rRat();showToast('Tracker atualizado!')}
+
+// FILTER TRACKERS
+function showFilterTrackers(){openModal('Filtrar Trackers',
+'<div class="mf"><label>Status</label><select id="m-ftk-status"><option value="">Todos</option><option value="1">Ativos</option><option value="0">Inativos</option></select>'+
+'<label>Projeto</label><select id="m-ftk-proj"><option value="">Todos</option>'+S.projects.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')+'</select>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal();rTk()">Limpar</button><button class="btn" onclick="doFilterTrackers()">Aplicar</button></div></div>')}
+function doFilterTrackers(){const st=document.getElementById('m-ftk-status').value,proj=document.getElementById('m-ftk-proj').value;
+let filtered=S.trackers;
+if(st==='1')filtered=filtered.filter(t=>t.active);if(st==='0')filtered=filtered.filter(t=>!t.active);
+if(proj)filtered=filtered.filter(t=>t.projectId===proj);
+closeModal();
+document.getElementById('tk-list').innerHTML=filtered.length?filtered.map(t=>{
+const pj=S.projects.find(p=>p.id===t.projectId);
+return'<div class="sc" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+'<div><div style="font-size:11px;color:var(--fg3)">ID '+t.id+(pj?' · Projeto: '+pj.name:'')+'</div><div style="font-size:15px;font-weight:600;margin-top:2px">'+t.name+'</div>'+
+'<div style="font-size:12px;color:var(--fg2)">'+t.network+'</div></div>'+
+'<span class="badge '+(t.active?'gr':'rd')+'">'+(t.active?'ATIVO':'INATIVO')+'</span></div></div>'}).join(''):'<p style="color:var(--fg2);font-size:13px;text-align:center;padding:20px">Nenhum tracker encontrado.</p>'}
+
+// VISIT SEARCH
+function searchVisit(){const q=document.getElementById('visit-search').value.trim();
+if(!q){showToast('Digite um ID de visita');return}
+const v=S.visits.find(x=>x.id===q||q.includes(x.id));
+const el=document.getElementById('visit-result');
+if(v){const t=S.trackers.find(x=>x.id===v.trackerId);
+el.innerHTML='<div class="visit-result"><div class="vr-row"><span>ID</span><span>'+v.id+'</span></div>'+
+'<div class="vr-row"><span>Tracker</span><span>'+(t?t.name:v.trackerId)+'</span></div>'+
+'<div class="vr-row"><span>IP</span><span>'+v.ip+'</span></div>'+
+'<div class="vr-row"><span>País</span><span>'+v.country+'</span></div>'+
+'<div class="vr-row"><span>Página</span><span>'+v.page+'</span></div>'+
+'<div class="vr-row"><span>Data</span><span>'+v.date+'</span></div>'+
+'<div class="vr-row"><span>Clique</span><span>'+(v.click?'<span class="badge gr">Sim</span>':'<span class="badge rd">Não</span>')+'</span></div></div>'}
+else{el.innerHTML='<div style="padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--fg2);font-size:13px;margin-top:12px">Nenhuma visita encontrada com este ID.</div>'}}
+function clearVisitSearch(){document.getElementById('visit-search').value='';document.getElementById('visit-result').innerHTML=''}
+
+// Projects
+function rPj(){const q=(document.getElementById('pj-search')?.value||'').toLowerCase();
+const ord=document.getElementById('pj-order')?.value||'';
+let list=S.projects.filter(p=>!q||p.name.toLowerCase().includes(q));
+if(ord==='name')list.sort((a,b)=>a.name.localeCompare(b.name));
+if(ord==='recent')list.sort((a,b)=>b.id.localeCompare(a.id));
+document.getElementById('pj-list').innerHTML=list.map(p=>
+'<div class="sc" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+'<div><div style="font-size:11px;color:var(--fg3)">ID '+p.id+' · '+p.date+'</div><div style="font-size:15px;font-weight:600;margin-top:2px">'+p.name+'</div>'+
+(p.desc?'<div style="font-size:12px;color:var(--fg2);margin-top:2px">'+p.desc+'</div>':'')+'</div>'+
+'<div style="display:flex;gap:6px;align-items:center">'+
+'<button class="btn sm gh" onclick="showViewProject(\''+p.id+'\')" title="Visualizar"><span class="ms" style="font-size:18px">visibility</span></button>'+
+'<button class="btn sm gh" onclick="showEditProject(\''+p.id+'\')" title="Editar"><span class="ms" style="font-size:18px">edit</span></button>'+
+'<span class="badge '+(p.active?'gr':'rd')+'">'+(p.active?'ATIVO':'INATIVO')+'</span>'+
+'<button class="btn sm dn" onclick="rmPj(\''+p.id+'\')" title="Excluir"><span class="ms" style="font-size:18px">delete_outline</span></button></div></div></div>').join('')||'<p style="color:var(--fg2);font-size:13px;text-align:center;padding:16px">Nenhum projeto encontrado.</p>';
+const pi=document.getElementById('pj-pag-info');if(pi)pi.textContent='1 – '+list.length+' de '+S.projects.length}
+function showAddProject(){openModal('Novo Projeto',
+'<div class="mf"><label>Nome do Projeto</label><input id="m-pj-name" placeholder="Nome"><label>Descrição (opcional)</label><textarea id="m-pj-desc" placeholder="Descrição do projeto"></textarea>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doAddProject()">Criar</button></div></div>')}
+function doAddProject(){const n=document.getElementById('m-pj-name').value.trim(),d=document.getElementById('m-pj-desc').value.trim();
+if(!n){showToast('Digite o nome do projeto');return}
+S.projects.push({id:'p'+Date.now(),name:n,date:new Date().toLocaleDateString('pt-BR'),active:true,desc:d});sv();closeModal();rPj();showToast('Projeto criado!')}
+function showViewProject(id){const p=S.projects.find(x=>x.id===id);if(!p)return;
+const tks=S.trackers.filter(t=>t.projectId===id);
+openModal('Projeto: '+p.name,
+'<div class="visit-result"><div class="vr-row"><span>ID</span><span>'+p.id+'</span></div>'+
+'<div class="vr-row"><span>Criado em</span><span>'+p.date+'</span></div>'+
+'<div class="vr-row"><span>Status</span><span>'+(p.active?'Ativo':'Inativo')+'</span></div>'+
+(p.desc?'<div class="vr-row"><span>Descrição</span><span>'+p.desc+'</span></div>':'')+'</div>'+
+(tks.length?'<h4 style="margin-top:14px;font-size:13px;font-weight:600;color:var(--fg2)">Trackers ('+tks.length+')</h4>'+
+tks.map(t=>'<div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border)">'+t.name+' · '+t.visits+' visitas · '+t.clicks+' cliques</div>').join(''):'<p style="color:var(--fg3);font-size:12px;margin-top:12px">Nenhum tracker vinculado.</p>'))}
+function showEditProject(id){const p=S.projects.find(x=>x.id===id);if(!p)return;
+openModal('Editar Projeto',
+'<div class="mf"><label>Nome</label><input id="m-epj-name" value="'+p.name+'"><label>Descrição</label><textarea id="m-epj-desc">'+(p.desc||'')+'</textarea>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doEditProject(\''+id+'\')">Salvar</button></div></div>')}
+function doEditProject(id){const p=S.projects.find(x=>x.id===id);if(!p)return;
+p.name=document.getElementById('m-epj-name').value.trim()||p.name;p.desc=document.getElementById('m-epj-desc').value.trim();
+sv();closeModal();rPj();showToast('Projeto atualizado!')}
+function togglePj(id,v){const p=S.projects.find(x=>x.id===id);if(p)p.active=v;sv();showToast('Projeto '+(v?'ativado':'desativado'))}
+function rmPj(id){S.projects=S.projects.filter(x=>x.id!==id);sv();rPj();showToast('Projeto removido')}
+
+// Tags
+function searchTagVisit(){const q=document.getElementById('tag-visit-search').value.trim();
+if(!q){showToast('Digite um ID de visita');return}
+const v=S.visits.find(x=>x.id===q||q.includes(x.id));const el=document.getElementById('tag-visit-result');
+if(v){const t=S.trackers.find(x=>x.id===v.trackerId);
+el.innerHTML='<div class="visit-result" style="margin-top:10px"><div class="vr-row"><span>ID</span><span>'+v.id+'</span></div><div class="vr-row"><span>Tracker</span><span>'+(t?t.name:v.trackerId)+'</span></div><div class="vr-row"><span>IP</span><span>'+v.ip+'</span></div><div class="vr-row"><span>País</span><span>'+v.country+'</span></div><div class="vr-row"><span>Data</span><span>'+v.date+'</span></div></div>'}
+else{el.innerHTML='<p style="color:var(--fg3);font-size:12.5px;margin-top:10px">Nenhuma visita encontrada.</p>'}}
+function rTags(){const nameQ=(document.getElementById('tag-name-filter')?.value||'').toLowerCase();
+const statusQ=document.getElementById('tag-status-filter')?.value||'';
+let list=S.tags;if(nameQ)list=list.filter(t=>t.name.toLowerCase().includes(nameQ));
+if(statusQ)list=list.filter(t=>t.status===statusQ);
+document.getElementById('tag-list').innerHTML=list.length?list.map(t=>
+'<div class="sc" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+'<div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:18px;color:#0c0c0f">label</span></div>'+
+'<div><div style="font-size:11px;color:var(--fg3)">ID '+t.id+'</div><div style="font-size:15px;font-weight:700">'+t.name+'</div><div style="font-size:12px;color:var(--fg2)">'+t.funnel+' · '+(t.date||new Date().toLocaleDateString('pt-BR'))+'</div></div></div>'+
+'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+'<span class="badge yl" style="font-size:10px">Purchase</span><span class="badge bl" style="font-size:10px">Click</span>'+
+'<label class="tg"><input type="checkbox" '+(t.status==='active'?'checked':'')+' onchange="toggleTag(\''+t.id+'\',this.checked)"><span class="sl"></span></label>'+
+'<button class="btn sm gh" onclick="showViewTag(\''+t.id+'\')"><span class="ms" style="font-size:16px">visibility</span></button>'+
+'<button class="btn sm gh" onclick="showInstallScript(\''+t.id+'\')"><span class="ms" style="font-size:16px">code</span></button>'+
+'<button class="btn sm gh" onclick="cpTxt(\'TAG: '+t.name+' | ID: '+t.id+'\');showToast(\'Duplicado!\')" title="Duplicar"><span class="ms" style="font-size:16px">library_add</span></button>'+
+'<button class="btn sm gh" onclick="showEditTag(\''+t.id+'\')"><span class="ms" style="font-size:16px">edit</span></button>'+
+'<button class="btn sm dn" onclick="rmTag(\''+t.id+'\')"><span class="ms" style="font-size:16px">delete</span></button>'+
+'<button class="btn sm gh" onclick="openTagActions(\''+t.id+'\',\''+t.name.replace(/'/g,"\\'")+'\')" title="Mais ações"><span class="ms" style="font-size:16px">more_vert</span></button>'+
+'</div></div></div>').join(''):'<p style="color:var(--fg2);font-size:13px;text-align:center;padding:20px">Nenhuma TAG encontrada.</p>'}
+function showAddTagModal(){openModal('Criar TAG Águia',
+'<div class="mf"><label>Nome da TAG</label><input id="m-tag-name" placeholder="Nome"><label>Tipo de Funil</label><select id="m-tag-funnel"><option>Presell → Oferta</option><option>Direto para Oferta</option><option>Quiz → Presell → Oferta</option></select>'+
+'<label>Rede de Anúncios</label><select id="m-tag-net"><option>Google Ads</option><option>Meta Ads</option><option>NewsBreak</option><option>Taboola</option><option>TikTok Ads</option><option>MGID</option><option>RevContent</option></select>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doAddTag()">Criar TAG</button></div></div>')}
+async function doAddTag(){const n=document.getElementById('m-tag-name').value.trim(),f=document.getElementById('m-tag-funnel').value;
+if(!n){showToast('Digite o nome da TAG');return}
+try{const net=document.getElementById('m-tag-net').value;
+const r=await api('/api/tags',{method:'POST',body:{name:n,funnel:f,network:net}});
+S.tags.push({id:r.id,name:n,funnel:f,network:net,visits:0,clicks:0,status:'active',date:new Date().toLocaleDateString('pt-BR')});
+sv();closeModal();rTags();showToast('TAG criada!')}catch(e){showToast('Erro ao criar TAG')}}
+function toggleTag(id,v){const t=S.tags.find(x=>x.id===id);if(t)t.status=v?'active':'inactive';sv();rTags();showToast('TAG '+(v?'ativada':'desativada'))}
+function showViewTag(id){const t=S.tags.find(x=>x.id===id);if(!t)return;
+go('tag-analytics');renderTagAnalytics(t)}
+function renderTagAnalytics(t){const el=document.getElementById('p-tag-analytics');
+el.innerHTML='<div class="topbar"><div><div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:18px;color:#0c0c0f">label</span></div>'+
+'<div><h1 style="font-family:Space Grotesk,sans-serif;font-size:21px;font-weight:700">'+t.name+' - Analytics</h1>'+
+'<div class="sub-t">Desempenho da sua TAG Águia no período.</div></div></div></div>'+
+'<div style="display:flex;align-items:center;gap:8px"><button class="btn sm" style="background:var(--green);color:#fff;font-size:11px" onclick="showInstallScript(\''+t.id+'\')"><span class="ms" style="font-size:14px">download</span> Instalar Tag Águia</button>'+
+'<select style="padding:6px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:12px"><option>Hoje</option><option>Últimos 7 dias</option><option>Últimos 30 dias</option></select></div></div>'+
+'<div style="display:flex;gap:3px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:3px;width:fit-content;margin-bottom:18px">'+
+'<button class="vtab act" onclick="setVTab(this)">Analytics</button><button class="vtab" onclick="setVTab(this)">Leads</button></div>'+
+'<div class="kg" style="grid-template-columns:repeat(4,1fr)">'+
+'<div class="kc"><div class="ki" style="background:rgba(59,130,246,.15);color:var(--blue)"><span class="ms">person</span></div><div class="kb"><div class="kl">Leads (Visitantes)</div><div class="kv">'+t.visits+'</div></div></div>'+
+'<div class="kc"><div class="ki" style="background:rgba(139,92,246,.15);color:var(--purple)"><span class="ms">sync</span></div><div class="kb"><div class="kl">Sessões</div><div class="kv">'+Math.round(t.visits*1.1)+'</div></div></div>'+
+'<div class="kc"><div class="ki" style="background:rgba(6,182,212,.15);color:var(--cyan)"><span class="ms">visibility</span></div><div class="kb"><div class="kl">Visualizações de página únicas</div><div class="kv">'+Math.round(t.visits*1.12)+'</div></div></div>'+
+'<div class="kc"><div class="ki" style="background:rgba(245,166,35,.15);color:var(--accent)"><span class="ms">ads_click</span></div><div class="kb"><div class="kl">Cliques</div><div class="kv">'+t.clicks+'</div></div></div></div>'+
+'<div class="kg" style="grid-template-columns:repeat(3,1fr)">'+
+'<div class="kc"><div class="ki" style="background:rgba(34,197,94,.15);color:var(--green)"><span class="ms">add_shopping_cart</span></div><div class="kb"><div class="kl">Add to Cart</div><div class="kv">0</div></div></div>'+
+'<div class="kc"><div class="ki" style="background:rgba(236,72,153,.15);color:var(--pink)"><span class="ms">shopping_cart_checkout</span></div><div class="kb"><div class="kl">Initiate Checkout</div><div class="kv">0</div></div></div>'+
+'<div class="kc"><div class="ki" style="background:rgba(34,197,94,.15);color:var(--green)"><span class="ms">attach_money</span></div><div class="kb"><div class="kl">Purchase</div><div class="kv">0</div></div></div></div>'+
+'<div class="sc"><h2><span class="ms" style="font-size:18px">schedule</span> Visitas por Hora</h2>'+
+'<div style="height:180px;display:flex;align-items:flex-end;gap:4px;padding:10px 0">'+Array.from({length:24},(_,i)=>{const h=Math.floor(Math.random()*28);return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="background:var(--blue);border-radius:3px 3px 0 0;width:100%;height:'+Math.max(4,h*6)+'px"></div><span style="font-size:9px;color:var(--fg3)">'+String(i).padStart(2,'0')+':00</span></div>'}).join('')+'</div></div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px">'+
+'<div class="sc"><h2><span class="ms" style="font-size:18px">article</span> Top Páginas</h2><p style="font-size:11px;color:var(--fg3);margin-top:-8px;margin-bottom:12px">Páginas mais acessadas</p><div style="text-align:center;padding:20px;color:var(--fg2);font-size:13px">🦅 Sem dados no período</div></div>'+
+'<div class="sc"><h2><span class="ms" style="font-size:18px">group</span> Visitantes Recentes</h2><p style="font-size:11px;color:var(--fg3);margin-top:-8px;margin-bottom:12px">Visitantes mais recentes (Leads)</p><div style="text-align:center;padding:20px;color:var(--fg2);font-size:13px">🦅 Sem dados no período</div></div>'+
+'<div class="sc"><h2><span class="ms" style="font-size:18px">public</span> Localização dos Leads</h2><div style="display:flex;gap:8px;margin-bottom:12px"><button class="vtab act" style="font-size:11px;padding:4px 10px" onclick="setVTab(this)">Ranking</button><button class="vtab" style="font-size:11px;padding:4px 10px" onclick="setVTab(this)">Mapa</button></div><div style="text-align:center;padding:20px;color:var(--fg2);font-size:13px">🦅 Sem dados no período</div></div></div>'+
+'<div style="margin-top:12px"><button class="btn gh" onclick="go(\'tags\')"><span class="ms" style="font-size:16px">arrow_back</span> Voltar para TAGs</button></div>'}
+function showEditTag(id){const t=S.tags.find(x=>x.id===id);if(!t)return;
+openModal('Editar TAG',
+'<div class="mf"><label>Nome</label><input id="m-etag-name" value="'+t.name+'">'+
+'<label>Funil</label><select id="m-etag-fun"><option'+(t.funnel==='Presell → Oferta'?' selected':'')+'>Presell → Oferta</option><option'+(t.funnel==='Direto para Oferta'?' selected':'')+'>Direto para Oferta</option><option'+(t.funnel==='Quiz → Presell → Oferta'?' selected':'')+'>Quiz → Presell → Oferta</option></select>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doEditTag(\''+id+'\')">Salvar</button></div></div>')}
+function doEditTag(id){const t=S.tags.find(x=>x.id===id);if(!t)return;
+t.name=document.getElementById('m-etag-name').value.trim()||t.name;t.funnel=document.getElementById('m-etag-fun').value;
+sv();closeModal();rTags();showToast('TAG atualizada!')}
+async function rmTag(id){try{await api('/api/tags/'+id,{method:'DELETE'})}catch(e){}
+S.tags=S.tags.filter(x=>x.id!==id);sv();rTags();showToast('TAG removida')}
+
+// Notif link CRUD
+function rNlList(){const links=S.links.filter(l=>l.type==='notif');
+document.getElementById('nl-list').innerHTML=links.length?links.map(l=>
+'<div class="sc" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+'<div><div style="font-size:11px;color:var(--fg3)">ID '+l.id+' · '+l.date+'</div><div style="font-size:15px;font-weight:600;margin-top:2px">'+l.platform+'</div>'+
+'<div style="font-size:12px;color:var(--fg2)">'+(l.tracker||'')+'</div></div>'+
+'<div style="display:flex;gap:6px;align-items:center">'+
+'<button class="btn sm gh" onclick="cpTxt(\''+l.url.replace(/'/g,"\\'")+'\');showToast(\'Copiado!\')" title="Copiar"><span class="ms" style="font-size:18px">content_copy</span></button>'+
+'<button class="btn sm gh" onclick="showEditNlLink(\''+l.id+'\')" title="Editar"><span class="ms" style="font-size:18px">edit</span></button>'+
+'<button class="btn sm dn" onclick="rmNlLink(\''+l.id+'\')" title="Excluir"><span class="ms" style="font-size:18px">delete_outline</span></button>'+
+'<span class="badge gr">ATIVO</span><label class="tg"><input type="checkbox" checked><span class="sl"></span></label></div></div></div>').join('')
+:'<p style="color:var(--fg2);font-size:13px;text-align:center;padding:20px">Nenhum link de notificação.</p>'}
+function showAddNotifLink(){openModal('Novo Link de Notificação',
+'<div class="mf"><label>Plataforma</label><select id="m-nl-plat"><option>BuyGoods</option><option>Digistore24</option><option>ClickBank</option><option>Monetizze</option><option>Hotmart</option><option>MaxWeb</option></select>'+
+'<label>Tracker</label><select id="m-nl-tk"><option value="">Selecionar...</option>'+S.trackers.map(t=>'<option value="'+t.id+'">'+t.name+'</option>').join('')+'</select>'+
+'<label>Projeto</label><select id="m-nl-proj"><option value="">Qualquer</option>'+S.projects.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')+'</select>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doAddNlLink()">Criar</button></div></div>')}
+function doAddNlLink(){const p=document.getElementById('m-nl-plat').value,tk=document.getElementById('m-nl-tk'),proj=document.getElementById('m-nl-proj');
+const tkName=tk.options[tk.selectedIndex]?.text||'';const projName=proj.options[proj.selectedIndex]?.text||'';
+const url='https://aguia-tracker.com/postback?platform='+p.toLowerCase()+'&tracker='+(tkName||'all')+'&tid={transaction_id}&amount={amount}&status={status}&click_id={click_id}';
+S.links.push({id:'lk'+Date.now(),type:'notif',platform:p,tracker:tkName,project:projName,url:url,date:new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR')});
+sv();closeModal();rNlList();showToast('Link criado!')}
+function showEditNlLink(id){const l=S.links.find(x=>x.id===id);if(!l)return;
+openModal('Editar Link','<div class="mf"><label>Plataforma</label><input id="m-enl-plat" value="'+l.platform+'"><label>Tracker</label><input id="m-enl-tk" value="'+(l.tracker||'')+'">'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doEditNlLink(\''+id+'\')">Salvar</button></div></div>')}
+function doEditNlLink(id){const l=S.links.find(x=>x.id===id);if(!l)return;
+l.platform=document.getElementById('m-enl-plat').value;l.tracker=document.getElementById('m-enl-tk').value;sv();closeModal();rNlList();showToast('Link atualizado!')}
+function rmNlLink(id){S.links=S.links.filter(x=>x.id!==id);sv();rNlList();showToast('Link removido')}
+
+// Notif list (Notificações de Vendas)
+function rNList(){const d=new Date(),ds=d.toLocaleDateString('pt-BR');
+const el=document.getElementById('nv-period');if(el)el.textContent='· '+ds+' – '+ds;
+const rec=document.getElementById('nv-receita');if(rec){const total=S.notifs.reduce((s,n)=>s+n.value,0);
+rec.innerHTML=total?'<div style="font-family:Space Grotesk,sans-serif;font-size:28px;font-weight:700">$ '+total.toFixed(2)+'</div>':'<div style="padding:20px"><div style="font-size:40px;margin-bottom:8px">🦅</div>Nenhuma receita no período<br><span style="font-size:12px">Não há vendas para calcular a receita com os filtros atuais.</span></div>'}
+const rast=document.getElementById('nv-rastreamento');if(rast){const total=S.notifs.length;
+rast.innerHTML=total?'<div style="font-family:Space Grotesk,sans-serif;font-size:28px;font-weight:700">'+total+' vendas</div>':'<div style="padding:20px"><div style="font-size:40px;margin-bottom:8px">🦅</div>Nenhum rastreamento no período<br><span style="font-size:12px">Não há vendas para calcular o rastreamento com os filtros atuais.</span></div>'}
+const evol=document.getElementById('nv-evolucao');if(evol)evol.innerHTML='<div style="padding:20px"><div style="font-size:40px;margin-bottom:8px">🦅</div>Nenhum resultado encontrado<br><span style="font-size:12px">Ajuste seus filtros ou critérios de busca e tente novamente.</span></div>';
+const tipo=document.getElementById('nv-tipo');if(tipo)tipo.innerHTML='<div style="padding:20px"><div style="font-size:40px;margin-bottom:8px">🦅</div>Nenhum resultado encontrado<br><span style="font-size:12px">Ajuste seus filtros ou critérios de busca e tente novamente.</span></div>';
+const rede=document.getElementById('nv-rede');if(rede)rede.innerHTML='<div style="padding:20px"><div style="font-size:40px;margin-bottom:8px">🦅</div>Nenhum resultado encontrado<br><span style="font-size:12px">Ajuste seus filtros ou critérios de busca e tente novamente.</span></div>';
+const utm=document.getElementById('nv-utm');if(utm)utm.innerHTML='<div style="padding:20px"><div style="font-size:40px;margin-bottom:8px">🦅</div>Nenhum resultado encontrado<br><span style="font-size:12px">Ajuste seus filtros ou critérios de busca e tente novamente.</span></div>';
+const nfl=document.getElementById('nv-notifs-list');if(nfl)nfl.innerHTML='<div style="padding:20px"><div style="font-size:40px;margin-bottom:8px">🦅</div>Nenhum resultado encontrado<br><span style="font-size:12px">Ajuste seus filtros ou critérios de busca e tente novamente.</span></div>'}
+
+// Checkout link CRUD
+function rCkLinks(){const links=S.links.filter(l=>l.type==='checkout');
+document.getElementById('ckl-links').innerHTML=links.length?links.map(l=>
+'<div class="sc" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+'<div><div style="font-size:11px;color:var(--fg3)">ID '+l.id+' · '+l.date+'</div><div style="font-size:15px;font-weight:600;margin-top:2px">'+l.platform+'</div>'+
+'<div style="font-size:12px;color:var(--fg2)">'+(l.tracker||'')+'</div></div>'+
+'<div style="display:flex;gap:6px;align-items:center">'+
+'<button class="btn sm gh" onclick="cpTxt(\''+l.url.replace(/'/g,"\\'")+'\');showToast(\'Copiado!\')" title="Copiar"><span class="ms" style="font-size:18px">content_copy</span></button>'+
+'<button class="btn sm gh" onclick="showEditCkLink(\''+l.id+'\')" title="Editar"><span class="ms" style="font-size:18px">edit</span></button>'+
+'<button class="btn sm dn" onclick="rmCkLink(\''+l.id+'\')" title="Excluir"><span class="ms" style="font-size:18px">delete_outline</span></button>'+
+'<span class="badge gr">ATIVO</span><label class="tg"><input type="checkbox" checked><span class="sl"></span></label></div></div></div>').join('')
+:'<p style="color:var(--fg2);font-size:13px;text-align:center;padding:20px">Nenhum link de checkout.</p>'}
+function showAddCkLink(){openModal('Novo Link de Checkout',
+'<div class="mf"><label>Plataforma</label><select id="m-ck-plat"><option>BuyGoods</option><option>Digistore24</option><option>ClickBank</option><option>Monetizze</option><option>Hotmart</option><option>MaxWeb</option></select>'+
+'<label>URL do Checkout</label><input id="m-ck-url" placeholder="https://checkout.exemplo.com">'+
+'<label>Tracker</label><select id="m-ck-tk"><option value="">Selecionar...</option>'+S.trackers.map(t=>'<option value="'+t.id+'">'+t.name+'</option>').join('')+'</select>'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doAddCkLink()">Criar</button></div></div>')}
+function doAddCkLink(){const p=document.getElementById('m-ck-plat').value,u=document.getElementById('m-ck-url').value.trim(),tk=document.getElementById('m-ck-tk');
+const tkName=tk.options[tk.selectedIndex]?.text||'';
+const url=u?(u+(u.includes('?')?'&':'?')+'aguia_ck=1&tracker='+(tkName||'all')):'';
+S.links.push({id:'ck'+Date.now(),type:'checkout',platform:p,tracker:tkName,url:url||'https://aguia-tracker.com/checkout/'+p.toLowerCase(),date:new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR')});
+sv();closeModal();rCkLinks();showToast('Link criado!')}
+function showEditCkLink(id){const l=S.links.find(x=>x.id===id);if(!l)return;
+openModal('Editar Link','<div class="mf"><label>Plataforma</label><input id="m-eck-plat" value="'+l.platform+'"><label>Tracker</label><input id="m-eck-tk" value="'+(l.tracker||'')+'">'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doEditCkLink(\''+id+'\')">Salvar</button></div></div>')}
+function doEditCkLink(id){const l=S.links.find(x=>x.id===id);if(!l)return;
+l.platform=document.getElementById('m-eck-plat').value;l.tracker=document.getElementById('m-eck-tk').value;sv();closeModal();rCkLinks();showToast('Link atualizado!')}
+function rmCkLink(id){S.links=S.links.filter(x=>x.id!==id);sv();rCkLinks();showToast('Link removido')}
+
+// Checkout list
+function rCkList(){document.getElementById('ckl-b').innerHTML=S.checkouts.map(c=>
+'<tr><td>'+c.date+'</td><td>'+c.tracker+'</td><td>'+c.product+'</td><td>'+c.step+'</td><td><span class="badge '+(c.status==='Completo'?'gr':'yl')+'">'+c.status+'</span></td>'+
+'<td><button class="btn sm dn" onclick="rmCk(\''+c.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>').join('')}
+function rmCk(id){S.checkouts=S.checkouts.filter(x=>x.id!==id);sv();rCkList()}
+
+// Products
+function rProd(){const q=(document.getElementById('prod-search')?.value||'').toLowerCase();
+const netFilter=document.getElementById('prod-net-filter')?.value||'';
+let list=S.products;if(q)list=list.filter(o=>o.name.toLowerCase().includes(q));
+if(netFilter)list=list.filter(o=>o.network===netFilter);
+document.getElementById('prod-b').innerHTML=list.map(o=>{
+const tks=S.trackers.length,cv=S.campaigns.filter(c=>c.prodId===o.id).reduce((s,c)=>s+c.conv,0);
+return'<tr><td style="font-weight:600">'+o.name+'</td><td><span class="badge yl">'+o.network+'</span></td><td>$ '+o.payout.toFixed(2)+'</td>'+
+'<td>'+tks+'</td><td>'+cv+'</td><td><span class="badge gr">Ativo</span></td>'+
+'<td><button class="btn sm gh" onclick="showEditProduct(\''+o.id+'\')"><span class="ms" style="font-size:18px">edit</span></button> <button class="btn sm dn" onclick="rmProd(\''+o.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>'}).join('')}
+function showAddProduct(){openModal('Novo Produto',
+'<div class="mf"><label>Nome do Produto</label><input id="m-prod-name" placeholder="Nome">'+
+'<label>Rede</label><select id="m-prod-net"><option>BuyGoods</option><option>Digistore24</option><option>ClickBank</option><option>Monetizze</option><option>Hotmart</option><option>MaxWeb</option></select>'+
+'<label>Payout (USD)</label><input id="m-prod-pay" type="number" step="0.01" placeholder="0.00">'+
+'<label>URL da Oferta</label><input id="m-prod-url" placeholder="https://...">'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doAddProduct()">Criar</button></div></div>')}
+function doAddProduct(){const n=document.getElementById('m-prod-name').value.trim(),net=document.getElementById('m-prod-net').value,
+pay=parseFloat(document.getElementById('m-prod-pay').value)||0,url=document.getElementById('m-prod-url').value.trim();
+if(!n){showToast('Digite o nome do produto');return}
+S.products.push({id:'o'+Date.now(),name:n,network:net,payout:pay,url:url,status:'active'});sv();closeModal();rProd();showToast('Produto criado!')}
+function showEditProduct(id){const o=S.products.find(x=>x.id===id);if(!o)return;
+openModal('Editar Produto',
+'<div class="mf"><label>Nome</label><input id="m-eprod-name" value="'+o.name+'">'+
+'<label>Rede</label><select id="m-eprod-net"><option'+(o.network==='BuyGoods'?' selected':'')+'>BuyGoods</option><option'+(o.network==='Digistore24'?' selected':'')+'>Digistore24</option><option'+(o.network==='ClickBank'?' selected':'')+'>ClickBank</option><option'+(o.network==='Monetizze'?' selected':'')+'>Monetizze</option><option'+(o.network==='Hotmart'?' selected':'')+'>Hotmart</option><option'+(o.network==='MaxWeb'?' selected':'')+'>MaxWeb</option></select>'+
+'<label>Payout (USD)</label><input id="m-eprod-pay" type="number" step="0.01" value="'+o.payout+'">'+
+'<label>URL</label><input id="m-eprod-url" value="'+(o.url||'')+'">'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doEditProduct(\''+id+'\')">Salvar</button></div></div>')}
+function doEditProduct(id){const o=S.products.find(x=>x.id===id);if(!o)return;
+o.name=document.getElementById('m-eprod-name').value.trim()||o.name;o.network=document.getElementById('m-eprod-net').value;
+o.payout=parseFloat(document.getElementById('m-eprod-pay').value)||o.payout;o.url=document.getElementById('m-eprod-url').value.trim();
+sv();closeModal();rProd();showToast('Produto atualizado!')}
+function rmProd(id){S.products=S.products.filter(x=>x.id!==id);sv();rProd();showToast('Produto removido')}
+
+// Taxes
+function rTax(){document.getElementById('tax-b').innerHTML=S.taxes.map(t=>
+'<tr><td>'+t.name+'</td><td>'+t.pct+'%</td><td><button class="btn sm dn" onclick="rmTax(\''+t.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>').join('')}
+function addTax(){const n=document.getElementById('tax-name').value.trim(),p=parseFloat(document.getElementById('tax-pct').value)||0;
+if(!n){showToast('Digite o nome do imposto');return}
+S.taxes.push({id:'tx'+Date.now(),name:n,pct:p});sv();rTax();document.getElementById('tax-name').value='';document.getElementById('tax-pct').value='';showToast('Imposto adicionado!')}
+function rmTax(id){S.taxes=S.taxes.filter(x=>x.id!==id);sv();rTax();showToast('Imposto removido')}
+
+// Fees
+function rFees(){document.getElementById('fee-b').innerHTML=S.fees.map(f=>
+'<tr><td>'+f.platform+'</td><td>'+f.pct+'%</td><td><button class="btn sm dn" onclick="rmFee(\''+f.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>').join('')}
+function addFee(){const p=document.getElementById('fee-plat').value,pct=parseFloat(document.getElementById('fee-pct').value)||0;
+S.fees.push({id:'fe'+Date.now(),platform:p,pct:pct});sv();rFees();document.getElementById('fee-pct').value='';showToast('Taxa adicionada!')}
+function rmFee(id){S.fees=S.fees.filter(x=>x.id!==id);sv();rFees();showToast('Taxa removida')}
+
+// Domains
+function rDom(){document.getElementById('dom-b').innerHTML=S.domains.map(d=>
+'<tr><td>'+d.url+'</td><td><span class="badge gr">Ativo</span></td><td><span class="badge gr">SSL ✓</span></td>'+
+'<td><button class="btn sm dn" onclick="rmDom(\''+d.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>').join('')}
+function addDomain(){const u=document.getElementById('dom-url').value.trim();if(!u){showToast('Digite o domínio');return}
+S.domains.push({id:'dm'+Date.now(),url:u});sv();rDom();document.getElementById('dom-url').value='';showToast('Domínio adicionado!')}
+function rmDom(id){S.domains=S.domains.filter(x=>x.id!==id);sv();rDom();showToast('Domínio removido')}
+
+// Producer URLs
+function rPU(){const q=(document.getElementById('pu-search').value||'').toLowerCase();
+const list=S.producerUrls.filter(u=>!q||u.url.toLowerCase().includes(q)||u.tracker.toLowerCase().includes(q));
+document.getElementById('pu-b').innerHTML=list.length?list.map(u=>
+'<tr><td style="color:var(--fg3)">'+u.id+'</td><td style="word-break:break-all">'+u.url+'</td><td>'+u.tracker+'</td>'+
+'<td><span class="badge '+(u.status==='Ativo'?'gr':'rd')+'">'+u.status+'</span></td><td style="white-space:nowrap">'+u.date+'</td>'+
+'<td><button class="btn sm dn" onclick="rmPU(\''+u.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>').join(''):'<tr><td colspan="6" style="text-align:center;color:var(--fg3);padding:30px">Nenhum registro encontrado</td></tr>';
+document.getElementById('pu-pag').innerHTML='<span>'+list.length+' de '+S.producerUrls.length+'</span>'}
+function addProducerUrl(){openModal('Nova URL Produtor','<div class="af" style="flex-direction:column;gap:8px">'+
+'<input id="pu-url" placeholder="URL do produtor"><input id="pu-tracker" placeholder="Tracker">'+
+'<button class=\"btn\" onclick=\"savePU()\">Salvar</button></div>')}
+function savePU(){const u=document.getElementById('pu-url').value.trim(),t=document.getElementById('pu-tracker').value.trim();
+if(!u){showToast('Digite a URL');return}S.producerUrls.push({id:'pu'+Date.now(),url:u,tracker:t||'—',status:'Ativo',date:new Date().toLocaleString('pt-BR')});
+sv();rPU();closeModal();showToast('URL Produtor adicionada!')}
+function rmPU(id){S.producerUrls=S.producerUrls.filter(x=>x.id!==id);sv();rPU();showToast('URL removida')}
+
+// API Keys
+function rAk(){document.getElementById('ak-b').innerHTML=S.apikeys.map(k=>
+'<tr><td>'+k.name+'</td><td style="font-family:monospace;font-size:11px">'+k.key+'</td><td>'+k.date+'</td>'+
+'<td><button class="btn sm gh" onclick="cpTxt(\''+k.key+'\')"><span class="ms" style="font-size:18px">content_copy</span></button> <button class="btn sm dn" onclick="rmAk(\''+k.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>').join('')}
+function genApiKey(){const n=document.getElementById('ak-name').value.trim()||'Key '+(S.apikeys.length+1);
+const key='ag_'+Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+S.apikeys.push({id:'ak'+Date.now(),name:n,key:key,date:new Date().toLocaleDateString('pt-BR')});sv();rAk();
+document.getElementById('ak-name').value='';showToast('Chave gerada!')}
+function rmAk(id){S.apikeys=S.apikeys.filter(x=>x.id!==id);sv();rAk();showToast('Chave removida')}
+
+// VSL
+function rVsl(){document.getElementById('vsl-b').innerHTML=S.vsls.map(v=>
+'<tr><td style="font-size:12px;word-break:break-all">'+v.url+'</td><td>'+v.views+'</td><td>'+v.retention+'%</td><td>'+v.ctaClicks+'</td>'+
+'<td><button class="btn sm dn" onclick="rmVsl(\''+v.id+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></td></tr>').join('')}
+function addVsl(){const u=document.getElementById('vsl-url').value.trim();if(!u){showToast('Digite a URL do VSL');return}
+S.vsls.push({id:'vs'+Date.now(),url:u,views:0,retention:0,ctaClicks:0});sv();rVsl();document.getElementById('vsl-url').value='';showToast('VSL adicionado!')}
+function rmVsl(id){S.vsls=S.vsls.filter(x=>x.id!==id);sv();rVsl();showToast('VSL removido')}
+
+// Ad Accounts
+function rAds(type){const cMap={google:'gads-content',meta:'meta-content',newsbreak:'nb-content',taboola:'tab-content',tiktok:'tt-content',mgid:'mg-content',revcontent:'rc-content'};
+const cId=cMap[type]||'gads-content';const el=document.getElementById(cId);if(!el)return;
+const accs=S.adAccounts.filter(a=>a.type===type);
+if(!accs.length){el.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:60px;margin-bottom:16px">🦅</div><div style="font-family:Space Grotesk,sans-serif;font-size:17px;font-weight:700;margin-bottom:8px">Conecte suas contas de anúncios</div><div style="color:var(--fg2);font-size:13px;margin-bottom:16px">Para ver suas campanhas e métricas, conecte sua conta na Central de Contas.</div><button class="btn" onclick="go(\'accounts\')"><span class="ms" style="font-size:16px">account_circle</span> Ir para Central de Contas</button></div>';return}
+el.innerHTML='<div class="sc"><h2>Contas Conectadas</h2><div style="overflow-x:auto"><table><thead><tr><th>Conta</th><th>ID</th><th>Campanhas</th><th>Gasto Hoje</th><th>Status</th><th></th></tr></thead><tbody>'+accs.map(a=>
+'<tr><td>'+a.name+'</td><td>'+a.accId+'</td><td>'+(a.campaigns||0)+'</td><td>$ '+(a.spend||0).toFixed(2)+'</td>'+
+'<td><span class="badge gr">Conectado</span></td><td><button class="btn sm dn" onclick="rmAcc(\''+a.id+'\',\''+type+'\')"><span class="ms" style="font-size:16px">delete_outline</span></button></td></tr>').join('')+'</tbody></table></div></div>'}
+function addAdAccount(type){let accId,name;
+if(type==='google'){accId=document.getElementById('gads-id').value.trim();name=document.getElementById('gads-name').value.trim();document.getElementById('gads-id').value='';document.getElementById('gads-name').value=''}
+else if(type==='meta'){accId=document.getElementById('meta-id').value.trim();name=document.getElementById('meta-name').value.trim();document.getElementById('meta-id').value='';document.getElementById('meta-name').value=''}
+else if(type==='newsbreak'){accId=document.getElementById('nb-id').value.trim();name=document.getElementById('nb-name').value.trim();document.getElementById('nb-id').value='';document.getElementById('nb-name').value=''}
+else if(type==='taboola'){accId=document.getElementById('tab-id').value.trim();name=document.getElementById('tab-name').value.trim();document.getElementById('tab-id').value='';document.getElementById('tab-name').value=''}
+else if(type==='tiktok'){accId=document.getElementById('tt-id').value.trim();name=document.getElementById('tt-name').value.trim();document.getElementById('tt-id').value='';document.getElementById('tt-name').value=''}
+else if(type==='mgid'){accId=document.getElementById('mg-id').value.trim();name=document.getElementById('mg-name').value.trim();document.getElementById('mg-id').value='';document.getElementById('mg-name').value=''}
+else if(type==='revcontent'){accId=document.getElementById('rc-id').value.trim();name=document.getElementById('rc-name').value.trim();document.getElementById('rc-id').value='';document.getElementById('rc-name').value=''}
+else{accId='unknown';name='unknown'}
+if(!accId){showToast('Digite o ID da conta');return}
+S.adAccounts.push({id:'aa'+Date.now(),type:type,accId:accId,name:name||accId,campaigns:0,spend:0});sv();rAds(type);showToast('Conta conectada!')}
+function rmAcc(id,type){S.adAccounts=S.adAccounts.filter(x=>x.id!==id);sv();['google','meta','newsbreak','taboola','tiktok','mgid','revcontent'].forEach(t=>rAds(t));showToast('Conta removida')}
+function rAccounts(){document.getElementById('acc-list').innerHTML=S.adAccounts.map(a=>
+'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">'+
+'<div><span style="font-weight:600">'+a.name+'</span><span style="color:var(--fg2);font-size:12px;margin-left:8px">'+a.type+' · '+a.accId+'</span></div>'+
+'<div style="display:flex;gap:6px;align-items:center"><span class="badge gr">Conectado</span><button class="btn sm dn" onclick="rmAcc(\''+a.id+'\',\''+a.type+'\')"><span class="ms" style="font-size:18px">delete_outline</span></button></div></div>').join('')||'<p style="color:var(--fg2);font-size:13px">Nenhuma conta conectada.</p>'}
+function showConnectAd(type,label){openModal('Conectar '+label,
+'<div class="mf"><label>ID da Conta</label><input id="m-cad-id" placeholder="ID da conta"><label>Nome</label><input id="m-cad-name" placeholder="Nome da conta">'+
+'<div class="mactions"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="doConnectAd(\''+type+'\')">Conectar</button></div></div>')}
+function doConnectAd(type){const accId=document.getElementById('m-cad-id')?.value.trim(),name=document.getElementById('m-cad-name')?.value.trim();
+if(!accId){showToast('Digite o ID da conta');return}
+S.adAccounts.push({id:'aa'+Date.now(),type:type,accId:accId,name:name||accId,campaigns:0,spend:0});sv();closeModal();rAccounts();showToast('Conta conectada!')}
+function rAccGrid(){const nets=[{t:'google',l:'Google Ads',ic:'ads_click',bg:'#4285F4'},{t:'meta',l:'Meta Ads',ic:'public',bg:'#1877F2'},
+{t:'tiktok',l:'TikTok Ads',ic:'play_circle',bg:'#FF004F'},{t:'taboola',l:'Taboola',ic:'web',bg:'#008CBA'},
+{t:'newsbreak',l:'NewsBreak',ic:'feed',bg:'#FF6600'},{t:'mgid',l:'MGID',ic:'grid_view',bg:'#00A36C'},{t:'revcontent',l:'RevContent',ic:'article',bg:'#9333ea'}];
+const g=document.getElementById('acc-grid');if(!g)return;
+g.innerHTML=nets.map(n=>'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px">'+
+'<div style="width:40px;height:40px;background:'+n.bg+';border-radius:10px;display:flex;align-items:center;justify-content:center"><span class="ms" style="color:#fff;font-size:20px">'+n.ic+'</span></div>'+
+'<div style="flex:1"><div style="font-size:14px;font-weight:600">'+n.l+'</div><div style="font-size:11px;color:var(--fg3)">Conecte sua conta '+n.l+'</div></div>'+
+'<button class="btn sm" onclick="showConnectAd(\''+n.t+'\',\''+n.l+'\')"><span class="ms" style="font-size:16px">add</span></button></div>').join('')}
+
+// VTurb Integration
+function saveVturbToken(){const t=document.getElementById('vturb-token').value.trim();if(!t){showToast('Cole o token VTurb');return}showToast('Token VTurb salvo com sucesso!');document.getElementById('vturb-token').value=''}
+
+// Reports
+function genReport(){const type=document.getElementById('rpt-type').value,period=document.getElementById('rpt-period').value,
+format=document.getElementById('rpt-format').value;
+const el=document.getElementById('rpt-result');
+el.innerHTML='<div style="padding:16px;background:var(--bg2);border:1px solid var(--green);border-radius:10px;margin-top:12px">'+
+'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="ms" style="color:var(--green)">check_circle</span><span style="font-weight:600">Relatório Gerado</span></div>'+
+'<div style="font-size:12.5px;color:var(--fg2)"><div>Tipo: '+type+'</div><div>Período: '+period+'</div><div>Formato: '+format+'</div>'+
+'<div style="margin-top:8px">Total de vendas: '+S.campaigns.reduce((s,c)=>s+c.conv,0)+'</div>'+
+'<div>Receita total: $ '+S.campaigns.reduce((s,c)=>s+c.rev,0).toLocaleString()+'</div>'+
+'<div>Custo total: $ '+S.campaigns.reduce((s,c)=>s+c.cost,0).toLocaleString()+'</div></div></div>';
+showToast('Relatório gerado!')}
+
+// NOTIFICATION PANEL
+function openNotifPanel(){
+const notifs=[
+{icon:'paid',color:'var(--green)',title:'Nova venda detectada',desc:'Tracker "Landing US" registrou 1 venda — $47.00',time:'Há 12 min'},
+{icon:'person_add',color:'var(--accent)',title:'Novo visitante único',desc:'IP 187.xx.xx.45 acessou via Google Ads',time:'Há 28 min'},
+{icon:'trending_up',color:'#5b8def',title:'ROI acima de 100%',desc:'Campanha "FB — Presell v3" atingiu 142% ROI',time:'Há 1h'},
+{icon:'warning',color:'var(--red)',title:'Taxa de fuga alta',desc:'Tracker "Quiz BR" com 78% de fuga nas últimas 2h',time:'Há 2h'},
+{icon:'verified',color:'var(--green)',title:'Tracker verificado',desc:'Script do tracker "Oferta US" instalado com sucesso',time:'Há 3h'},
+{icon:'campaign',color:'var(--accent)',title:'Alerta de orçamento',desc:'Conta Meta Ads atingiu 80% do orçamento diário',time:'Há 5h'}
+];
+const html='<div style="display:flex;flex-direction:column;gap:2px;max-height:400px;overflow-y:auto">'+
+notifs.map(n=>'<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:8px;background:var(--bg);cursor:pointer" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'var(--bg)\'">'+
+'<span class="ms" style="font-size:22px;color:'+n.color+'">'+n.icon+'</span>'+
+'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--fg)">'+n.title+'</div>'+
+'<div style="font-size:12px;color:var(--fg2);margin-top:2px">'+n.desc+'</div>'+
+'<div style="font-size:11px;color:var(--fg3);margin-top:4px">'+n.time+'</div></div></div>').join('')+
+'</div><div style="text-align:center;margin-top:12px"><button class="btn gh" onclick="closeModal()">Fechar</button></div>';
+openModal('Notificações ('+notifs.length+')',html)}
+
+// CUSTOMIZE DASHBOARD
+function openCustomize(){
+const metrics=[
+{key:'visits',label:'Visitas Pagas',on:true},{key:'clicks',label:'Cliques Pagos',on:true},
+{key:'organic',label:'Visitas Orgânicas',on:true},{key:'orgClicks',label:'Cliques Orgânicos',on:true},
+{key:'flee',label:'Taxa de Fuga',on:true},{key:'eco',label:'Economizômetro',on:true},
+{key:'revenue',label:'Faturamento',on:true},{key:'cost',label:'Investimento',on:true},
+{key:'profit',label:'Lucro',on:true},{key:'roi',label:'ROI',on:true},
+{key:'conv',label:'Conversões',on:true},{key:'cpa',label:'CPA',on:false}
+];
+const html='<div style="font-size:13px;color:var(--fg2);margin-bottom:12px">Selecione quais métricas exibir no dashboard:</div>'+
+'<div style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto">'+
+metrics.map(m=>'<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:8px;cursor:pointer;font-size:13px">'+
+'<input type=checkbox '+(m.on?'checked':'')+' onchange="showToast(this.checked?\''+m.label+' ativado\':\''+m.label+' desativado\')" style="accent-color:var(--accent);width:18px;height:18px">'+
+'<span style="flex:1">'+m.label+'</span>'+(m.on?'<span style="font-size:11px;color:var(--green)">Ativo</span>':'<span style="font-size:11px;color:var(--fg3)">Oculto</span>')+'</label>').join('')+
+'</div><div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end"><button class="btn gh" onclick="closeModal()">Cancelar</button><button class="btn" onclick="closeModal();showToast(\'Preferências salvas!\')">Salvar</button></div>';
+openModal('Personalizar Dashboard',html)}
+
+// TAG ACTIONS
+function openTagActions(id,name){
+openModal('Ações — '+name,
+'<div style="display:flex;flex-direction:column;gap:6px">'+
+'<button class="btn" style="justify-content:flex-start;gap:10px" onclick="closeModal();showEditTag(\''+id+'\')"><span class="ms" style="font-size:18px">edit</span> Editar TAG</button>'+
+'<button class="btn" style="justify-content:flex-start;gap:10px" onclick="closeModal();showInstallScript(\''+id+'\')"><span class="ms" style="font-size:18px">code</span> Ver Script</button>'+
+'<button class="btn" style="justify-content:flex-start;gap:10px" onclick="closeModal();cpTxt(\'TAG: '+name+' | ID: '+id+'\')"><span class="ms" style="font-size:18px">content_copy</span> Copiar Info</button>'+
+'<button class="btn" style="justify-content:flex-start;gap:10px" onclick="closeModal();showViewTag(\''+id+'\')"><span class="ms" style="font-size:18px">visibility</span> Visualizar</button>'+
+'<button class="btn" style="justify-content:flex-start;gap:10px" onclick="closeModal();showToast(\'Relatório de TAG exportado!\')"><span class="ms" style="font-size:18px">download</span> Exportar Relatório</button>'+
+'<div style="border-top:1px solid var(--border);margin:6px 0"></div>'+
+'<button class="btn dn" style="justify-content:flex-start;gap:10px" onclick="closeModal();rmTag(\''+id+'\')"><span class="ms" style="font-size:18px">delete</span> Excluir TAG</button>'+
+'</div>')}
+
+// THEME TOGGLE
+let isLight=false;
+function toggleTheme(){isLight=!isLight;document.documentElement.classList.toggle('light-mode',isLight);
+const btn=document.getElementById('theme-btn');
+btn.querySelector('.ms').textContent=isLight?'dark_mode':'light_mode';
+showToast(isLight?'Modo claro ativado':'Modo escuro ativado')}
+
+// LANGUAGE
+const LANG={
+pt:{dashboard:'Dashboard',sub:'Visualizando dados no período',visits:'Visitas Pagas',clicks:'Cliques Pagos',
+organic:'Visitas Orgânico',orgClk:'Cliques Orgânicos',flee:'Taxa de Fuga',eco:'Economizômetro',
+trackers:'Trackers Acessados',campaigns:'Campanhas',name:'Nome',status:'Status',roi:'ROI',
+today:'Hoje',yesterday:'Ontem',days7:'7 Dias',days30:'30 Dias',days90:'90 Dias',selectDates:'Selecionar datas',
+paid:'Pago',organicT:'Orgânico',search:'Buscar tracker...',totalVisits:'Visitas',totalClicks:'Cliques',totalFlee:'Fuga'},
+en:{dashboard:'Dashboard',sub:'Viewing data for the period',visits:'Paid Visits',clicks:'Paid Clicks',
+organic:'Organic Visits',orgClk:'Organic Clicks',flee:'Bounce Rate',eco:'Cost Saver',
+trackers:'Accessed Trackers',campaigns:'Campaigns',name:'Name',status:'Status',roi:'ROI',
+today:'Today',yesterday:'Yesterday',days7:'7 Days',days30:'30 Days',days90:'90 Days',selectDates:'Select dates',
+paid:'Paid',organicT:'Organic',search:'Search tracker...',totalVisits:'Visits',totalClicks:'Clicks',totalFlee:'Bounce'},
+es:{dashboard:'Dashboard',sub:'Visualizando datos del período',visits:'Visitas Pagas',clicks:'Clics Pagos',
+organic:'Visitas Orgánicas',orgClk:'Clics Orgánicos',flee:'Tasa de Fuga',eco:'Economizómetro',
+trackers:'Trackers Accedidos',campaigns:'Campañas',name:'Nombre',status:'Estado',roi:'ROI',
+today:'Hoy',yesterday:'Ayer',days7:'7 Días',days30:'30 Días',days90:'90 Días',selectDates:'Seleccionar fechas',
+paid:'Pago',organicT:'Orgánico',search:'Buscar tracker...',totalVisits:'Visitas',totalClicks:'Clics',totalFlee:'Fuga'}
+};
+let curLang='en';
+function setLang(lang){curLang=lang;
+const btns=document.querySelectorAll('#lang-btns .btn');
+btns.forEach(b=>{const isAct=b.textContent.trim().toLowerCase()===lang;
+b.style.background=isAct?'var(--accent)':'';b.style.color=isAct?'#0c0c0f':'';b.style.borderColor=isAct?'var(--accent)':''});
+const L=LANG[lang];
+const h1=document.querySelector('#p-home .topbar h1');if(h1)h1.textContent=L.dashboard;
+const sub=document.querySelector('#p-home .topbar .sub-t');if(sub)sub.textContent=L.sub;
+const si=document.querySelector('#p-home .si');if(si)si.placeholder=L.search;
+const tbns=document.querySelectorAll('#p-home .trow .tbtn');
+if(tbns[0])tbns[0].textContent=L.paid;if(tbns[1])tbns[1].textContent=L.organicT;
+const ptabs=document.querySelectorAll('#p-home .topbar .ptabs .ptab');
+const ptLabels=[L.yesterday,L.today,L.days7,L.days30,L.days90,L.selectDates];
+ptabs.forEach((t,i)=>{if(ptLabels[i])t.textContent=ptLabels[i]});
+const th=document.querySelectorAll('#p-home table th');
+if(th[0])th[0].textContent=L.name;if(th[1])th[1].innerHTML=L.totalVisits+' ↕';if(th[2])th[2].innerHTML=L.totalClicks+' ↕';if(th[3])th[3].innerHTML=L.totalFlee+' ↕';
+showToast(lang.toUpperCase()+' selecionado')}
+
+// AI CHAT
+const AI_ANSWERS={
+'como instalar':'Para instalar a TAG Águia, vá em TAG Águia no menu lateral, clique em "Criar TAG Águia", depois clique no nome da TAG criada e em "Instalar Script". Copie o código e cole antes do </head> na sua página.',
+'como criar projeto':'Vá em Projetos no menu lateral e clique em NOVO. Digite o nome do projeto e uma descrição, depois clique em Salvar.',
+'como conectar':'Vá em Integrações > Central de Contas. Clique na rede desejada (Google Ads, Meta Ads, etc.) e siga as instruções para autorizar o acesso.',
+'o que é economizômetro':'O Economizômetro mostra o valor estimado que você está economizando com o bloqueio automático de IPs fraudulentos. Ele calcula automaticamente baseado nos cliques bloqueados.',
+'como ver vendas':'Suas vendas aparecem no Dashboard Financeiro. Vá em Analytics > Dashboard Financeiro para ver métricas como CPA, ROI, ROAS, faturamento e lucro.',
+'default':'Obrigado pela sua pergunta! Para informações detalhadas, acesse nossa Central de Ajuda clicando em "Central de Ajuda" na barra superior, ou entre em contato pelo WhatsApp usando o botão "Precisa de Ajuda?" no menu lateral.'
+};
+function openAIChat(){
+openModal('Suporte IA — Águia Tracker','<div style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="ms" style="font-size:24px;color:var(--accent)">auto_awesome</span><div><div style="font-weight:700;font-size:14px">Assistente IA</div><div style="font-size:11px;color:var(--fg3)">Online agora</div></div></div></div>'+
+'<div id="ai-chat-log" class="ai-chat"><div class="ai-msg bot">Olá! 👋 Sou o assistente IA da Águia Tracker. Como posso ajudar? Alguns exemplos:<br>• Como instalar a TAG?<br>• Como criar um projeto?<br>• Como conectar contas de anúncio?<br>• O que é o Economizômetro?</div></div>'+
+'<div style="display:flex;gap:8px;margin-top:12px"><input id="ai-input" style="flex:1;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--fg);font-size:13px" placeholder="Digite sua pergunta..." onkeydown="if(event.key===\'Enter\')sendAI()"><button class="btn" onclick="sendAI()" style="padding:10px 16px"><span class="ms" style="font-size:18px">send</span></button></div>')}
+function sendAI(){const inp=document.getElementById('ai-input');const q=inp.value.trim();if(!q)return;
+const log=document.getElementById('ai-chat-log');
+log.innerHTML+='<div class="ai-msg user">'+q.replace(/</g,'&lt;')+'</div>';inp.value='';
+const ql=q.toLowerCase();let ans=AI_ANSWERS['default'];
+for(const[k,v]of Object.entries(AI_ANSWERS)){if(k!=='default'&&ql.includes(k)){ans=v;break}}
+setTimeout(()=>{log.innerHTML+='<div class="ai-msg bot">'+ans+'</div>';log.scrollTop=log.scrollHeight},600)}
+
+// CLOSE USER DROPDOWN ON OUTSIDE CLICK
+document.addEventListener('click',function(e){document.querySelectorAll('.user-dd.open').forEach(dd=>{if(!dd.contains(e.target))dd.classList.remove('open')})});
+
+// TUTORIAL
+const TUT_DATA=[
+{cat:'Bem-vindo à Águia Tracker',items:[
+{t:'Acessando a Águia Tracker',b:'<p>Para acessar a Águia Tracker, basta fazer login com sua conta no painel principal. Ao entrar, você será direcionado ao <strong>Dashboard</strong>, que é sua central de controle.</p><p>No Dashboard você encontra:</p><ul><li><strong>KPIs de Visitas e Cliques</strong> — dados em tempo real das suas campanhas</li><li><strong>Trackers Acessados</strong> — tabela com seus trackers mais recentes</li><li><strong>Economizômetro</strong> — valor estimado de economia pelo bloqueio automático de IPs</li><li><strong>Campanhas</strong> — resumo de performance com ROI</li></ul>'},
+{t:'Informações da Conta — Plano e Limites',b:'<p>Cada conta possui limites definidos pelo plano contratado. Para verificar seu plano atual, clique no ícone do usuário no canto superior direito.</p><p>Limites comuns incluem:</p><ul><li>Quantidade de TAGs ativas</li><li>Quantidade de Trackers</li><li>Projetos simultâneos</li><li>Volume de visitas mensais</li></ul>'},
+{t:'Suporte Técnico',b:'<p>Se precisar de ajuda, você tem duas opções:</p><ul><li><strong>Suporte IA</strong> — clique em "Perguntar para a IA" na barra superior para dúvidas rápidas</li><li><strong>WhatsApp</strong> — use o botão "Precisa de Ajuda?" na parte inferior do menu lateral para falar com nossa equipe</li></ul>'}
+]},
+{cat:'Comece Aqui',items:[
+{t:'Configuração Inicial',b:'<p>Siga esses passos para configurar sua Águia Tracker do zero:</p><ol><li><strong>Crie seu primeiro Projeto</strong> — vá em <em>Projetos</em> e clique em <em>NOVO</em></li><li><strong>Crie uma TAG Águia</strong> — vá em <em>TAG Águia</em>, clique em <em>Criar TAG Águia</em>, dê um nome, selecione o funil e a rede de anúncios</li><li><strong>Instale o script na sua página</strong> — clique no nome da TAG, copie o código e cole antes do &lt;/head&gt; da sua página de vendas</li><li><strong>Conecte suas contas de anúncios</strong> — vá em <em>Integrações › Central de Contas</em> e conecte Google Ads, Meta Ads etc.</li><li><strong>Configure o Checkout</strong> — em <em>Checkout › Link de Checkout</em>, vincule sua plataforma de vendas (BuyGoods, ClickBank, etc.)</li></ol><p>Após esses passos, a Águia começará a rastrear visitas, cliques e conversões automaticamente.</p>'}
+]},
+{cat:'Configurações do Sistema',items:[
+{t:'Aplicativo',b:'<p>A Águia Tracker pode ser acessada pelo navegador em qualquer dispositivo. Para uma experiência semelhante a um app nativo, adicione à tela inicial do seu celular:</p><ul><li><strong>Android:</strong> No Chrome, toque nos 3 pontos › "Adicionar à tela inicial"</li><li><strong>iPhone:</strong> No Safari, toque no ícone de compartilhar › "Adicionar à Tela de Início"</li></ul>'},
+{t:'Telegram',b:'<p>Receba notificações de vendas em tempo real pelo Telegram. Para configurar:</p><ol><li>Vá em <em>Notificações › Link de Notificação</em></li><li>Crie um novo link de notificação</li><li>Selecione "Telegram" como canal</li><li>Siga as instruções para conectar seu bot</li></ol>'},
+{t:'Troca de Senha',b:'<p>Para trocar sua senha, clique no ícone do usuário no canto superior direito e selecione "Alterar Senha". Escolha uma senha forte com no mínimo 8 caracteres.</p>'},
+{t:'Autenticação de Duas Etapas',b:'<p>Reforce a segurança da sua conta ativando a autenticação em duas etapas (2FA):</p><ol><li>Acesse as configurações da conta</li><li>Ative "Autenticação de duas etapas"</li><li>Escaneie o QR Code com um app autenticador (Google Authenticator, Authy, etc.)</li><li>Insira o código gerado para confirmar</li></ol>'},
+{t:'Alterar Time Zone',b:'<p>O fuso horário define como os dados de visitas, cliques e vendas são exibidos nos relatórios. Para alterar:</p><ol><li>Acesse as configurações da conta</li><li>Selecione seu fuso horário (ex: America/Sao_Paulo)</li><li>Salve as alterações</li></ol><p><strong>Importante:</strong> Alterar o fuso não modifica dados já registrados, apenas afeta a exibição de novos dados.</p>'}
+]},
+{cat:'Estrutura Águia',items:[
+{t:'Visão Geral',b:'<p>A Águia Tracker é organizada em uma hierarquia simples:</p><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0"><strong>Projeto</strong> → contém várias <strong>TAGs Águia</strong> → cada TAG rastreia uma <strong>página/funil</strong></div><ul><li><strong>Projetos:</strong> Agrupam suas TAGs por produto, nicho ou campanha</li><li><strong>TAGs Águia:</strong> São os rastreadores — cada TAG é instalada em uma página e coleta dados de visitas, cliques, conversões e fuga</li><li><strong>Dashboard Financeiro:</strong> Consolida todos os dados financeiros (faturamento, custos, ROI, ROAS)</li></ul>'}
+]},
+{cat:'Gerenciador de Anúncios',items:[
+{t:'Visão Geral',b:'<p>O Gerenciador de Anúncios mostra os dados das suas campanhas diretamente de cada rede de anúncio conectada. Redes disponíveis:</p><ul><li><strong>Google Ads</strong></li><li><strong>Meta Ads</strong> (Facebook/Instagram)</li><li><strong>NewsBreak</strong></li><li><strong>Taboola</strong></li><li><strong>TikTok Ads</strong></li><li><strong>MGID</strong></li><li><strong>RevContent</strong></li></ul><p>Para cada rede, você visualiza: impressões, cliques, custo, conversões e métricas de performance. Conecte suas contas em <em>Integrações › Central de Contas</em>.</p>'},
+{t:'Criar Campanha IA',b:'<p>A ferramenta de <strong>Criar Campanha IA</strong> utiliza inteligência artificial para gerar campanhas otimizadas automaticamente:</p><ol><li>Selecione o produto e a rede de anúncios</li><li>Defina seu orçamento e objetivo</li><li>A IA gera títulos, descrições e segmentação</li><li>Revise e publique diretamente</li></ol><p>Essa funcionalidade economiza tempo e gera anúncios já otimizados para conversão.</p>'}
+]},
+{cat:'TAG Águia',items:[
+{t:'Visão Geral',b:'<p>A <strong>TAG Águia</strong> é o coração do rastreamento. Cada TAG é um script que você instala na sua página para coletar dados.</p><p>Funcionalidades de cada TAG:</p><ul><li><strong>Conversão Automática</strong> — detecta e registra conversões automaticamente</li><li><strong>Checkout Automático</strong> — rastreia o checkout sem configuração manual</li><li><strong>Bloqueio Automático de IP</strong> — bloqueia IPs fraudulentos que geram cliques indesejados, economizando seu orçamento</li></ul><p>Ao clicar em uma TAG, você vê estatísticas detalhadas: visitas, cliques, taxa de fuga, conversões e um gráfico de performance.</p>'},
+{t:'Instalando o Script Águia',b:'<p>Para instalar o script da TAG Águia na sua página:</p><ol><li>Vá em <em>TAG Águia</em> e clique no nome da TAG</li><li>Na página de analytics da TAG, clique em <strong>"Instalar Script"</strong></li><li>Copie o código exibido</li><li>Cole o código <strong>antes do &lt;/head&gt;</strong> da sua página de vendas</li><li>Volte à Águia e clique em <strong>"Verificar Instalação"</strong></li></ol><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin:12px 0;font-family:monospace;font-size:11.5px;word-break:break-all;color:var(--accent)">&lt;script defer src="https://cdn.aguia-tracker.com/tag.js" data-tag-id="SEU_TAG_ID" data-event-host="api.aguia-tracker.com" data-plat-params="sub1,sub2,sub3,sub4,sub5"&gt;&lt;/script&gt;</div><p><strong>Importante:</strong> Após instalar, aguarde alguns minutos e acesse sua página para confirmar que as visitas estão sendo registradas.</p>'}
+]},
+{cat:'Projeto',items:[
+{t:'Visão Geral',b:'<p>Os <strong>Projetos</strong> servem para organizar suas TAGs por produto, campanha ou nicho.</p><ul><li>Crie um projeto para cada produto que você promove</li><li>Vincule as TAGs Águia ao projeto correspondente</li><li>Visualize estatísticas consolidadas por projeto</li></ul><p>Para criar: vá em <em>Projetos</em> › clique em <em>NOVO</em> › digite o nome e descrição.</p>'}
+]},
+{cat:'Integrações',items:[
+{t:'Central de Contas',b:'<p>A <strong>Central de Contas</strong> é onde você conecta suas contas de anúncios às redes suportadas:</p><ol><li>Vá em <em>Integrações › Central de Contas</em></li><li>Clique na rede desejada (Google Ads, Meta Ads, etc.)</li><li>Autorize o acesso à sua conta</li><li>Selecione as contas de anúncio que deseja rastrear</li></ol><p>Uma vez conectada, os dados de campanhas aparecem automaticamente no <em>Gerenciador de Anúncios</em> e no <em>Dashboard Financeiro</em>.</p>'},
+{t:'VTurb',b:'<p>A integração com o <strong>VTurb</strong> permite rastrear a performance dos seus vídeos de vendas (VSLs):</p><ul><li>Taxa de reprodução</li><li>Tempo médio de visualização</li><li>Ponto de abandono</li><li>Correlação entre tempo de vídeo e conversão</li></ul><p>Conecte na aba <em>Integrações › VTurb</em> usando sua API Key do VTurb.</p>'},
+{t:'API Keys (Token)',b:'<p>As <strong>API Keys</strong> permitem integração programática com a Águia Tracker.</p><p>Use-as para:</p><ul><li>Enviar dados de conversão via API</li><li>Integrar com sistemas personalizados</li><li>Automações via webhook</li></ul><p>Gere suas chaves em <em>Integrações › API Keys</em>. Nunca compartilhe suas chaves com terceiros.</p>'}
+]},
+{cat:'Plataformas de Venda',items:[
+{t:'Visão Geral',b:'<p>A Águia Tracker suporta integração com as principais plataformas de venda do mercado de afiliados:</p><ul><li>BuyGoods</li><li>ClickBank</li><li>Digistore24</li><li>Hotmart</li><li>Kiwify</li><li>Entre outras</li></ul><p>A integração permite rastrear vendas, reembolsos e calcular métricas como CPA, ROAS e lucro automaticamente.</p>'},
+{t:'Checkout',b:'<p>A seção de <strong>Checkout</strong> permite configurar como suas vendas são rastreadas:</p><ol><li>Vá em <em>Checkout › Link de Checkout</em></li><li>Crie um novo link de checkout</li><li>Selecione a plataforma de venda</li><li>Configure o postback ou webhook da plataforma</li></ol><p>Quando uma venda é realizada, a plataforma notifica a Águia, que registra a conversão automaticamente vinculada à visita original.</p>'}
+]},
+{cat:'Analytics',items:[
+{t:'Dashboard Financeiro',b:'<p>O <strong>Dashboard Financeiro</strong> é sua central de métricas financeiras. Ele mostra:</p><ul><li><strong>CPA</strong> — Custo por Aquisição</li><li><strong>Faturamento Líquido</strong> — Receita menos custos e impostos</li><li><strong>ROI</strong> — Retorno sobre Investimento</li><li><strong>ROAS</strong> — Retorno sobre Gasto com Anúncios</li><li><strong>Ticket Médio (AOV)</strong> — Valor médio por venda</li><li><strong>Margem de Lucro</strong></li></ul><p>Use os filtros de período, produto, conta e plataforma para segmentar os dados. Alterne entre <strong>USD</strong> e <strong>BRL</strong> para ver os valores na moeda desejada.</p><p>Os gráficos mostram: vendas por dia da semana, vendas por país, e faturamento × investimento × lucro por hora.</p>'},
+{t:'VTurb Analytics',b:'<p>O <strong>VTurb Analytics</strong> exibe métricas específicas dos seus vídeos de vendas integrados com o VTurb. Acompanhe a performance de cada VSL e otimize suas páginas de venda.</p>'}
+]},
+{cat:'Vendas',items:[
+{t:'Visão Geral',b:'<p>Na seção de vendas, você acompanha cada conversão registrada pela Águia:</p><ul><li>Data e hora da venda</li><li>Produto vendido</li><li>Valor</li><li>Origem (qual TAG/campanha gerou a venda)</li><li>Status (aprovada, reembolsada, pendente)</li></ul><p>Filtre por período, produto ou status para análises específicas.</p>'}
+]},
+{cat:'Visitas e Relatórios',items:[
+{t:'Visão Geral',b:'<p>A seção de relatórios permite exportar e analisar dados detalhados:</p><ul><li><strong>Relatório de Visitas</strong> — todas as visitas rastreadas com IP, país, dispositivo e fonte</li><li><strong>Relatório de Conversões</strong> — vendas com dados de atribuição</li><li><strong>Relatório de Performance</strong> — métricas de campanhas consolidadas</li></ul><p>Use o <strong>Localizador de Visitas</strong> (disponível nas TAGs e Trackers) para buscar uma visita específica pelo ID (vst_***). Isso é útil para verificar se uma visita foi registrada corretamente.</p>'}
+]},
+{cat:'Avançado',items:[
+{t:'URL do Produtor',b:'<p>A <strong>URL do Produtor</strong> é o endereço da página de vendas do produto que você promove. Configure-a para que a Águia saiba para onde direcionar o tráfego rastreado.</p>'},
+{t:'Relatórios',b:'<p>Gere relatórios detalhados com dados consolidados de todas as suas campanhas, TAGs e vendas. Exporte em diferentes formatos para análise.</p>'},
+{t:'Domínios Próprios',b:'<p>Conecte seu próprio domínio para usar URLs de rastreamento personalizadas:</p><ol><li>Vá em <em>Avançado › Domínios</em></li><li>Adicione seu domínio</li><li>Configure o DNS (CNAME) conforme instruído</li><li>Aguarde a propagação (até 48h)</li></ol><p>Domínios próprios aumentam a confiança e podem melhorar a taxa de aprovação dos seus anúncios.</p>'},
+{t:'Impostos',b:'<p>Configure os impostos que incidem sobre suas vendas para que o <em>Dashboard Financeiro</em> calcule o faturamento líquido corretamente. Adicione cada imposto com nome e percentual.</p>'},
+{t:'Taxas',b:'<p>Assim como os impostos, configure as taxas das plataformas de venda (ex: taxa do gateway, taxa da plataforma). Elas são deduzidas automaticamente no cálculo do lucro.</p>'},
+{t:'Produtos',b:'<p>Cadastre os produtos que você promove para facilitar a organização e filtragem dos dados. Cada produto pode ter custo de produção associado, usado no cálculo de margem de lucro.</p>'}
+]},
+{cat:'FAQ',items:[
+{t:'Perguntas Frequentes',b:'<h4>O que é a Taxa de Fuga?</h4><p>A taxa de fuga indica o percentual de visitantes que acessaram sua página mas não clicaram em nenhum elemento rastreado. Uma taxa alta pode indicar problemas na página ou tráfego de baixa qualidade.</p><h4>O que é o Bloqueio Automático de IP?</h4><p>A Águia detecta IPs que geram cliques repetitivos sem converter (cliques fraudulentos ou bots) e os bloqueia automaticamente, economizando seu orçamento de anúncios. O valor economizado aparece no Economizômetro.</p><h4>Posso usar a Águia com várias redes de anúncios ao mesmo tempo?</h4><p>Sim! Você pode conectar Google Ads, Meta Ads, TikTok Ads, Taboola, NewsBreak, MGID e RevContent simultaneamente. Cada rede tem sua seção no Gerenciador de Anúncios.</p><h4>Como verificar se meu script está instalado corretamente?</h4><p>Após instalar o script, vá na TAG correspondente e clique em "Instalar Script" › aba "Verificar". A Águia testará se o script está ativo na URL informada.</p><h4>Os dados são em tempo real?</h4><p>Sim, a Águia registra visitas e eventos em tempo real. Os dados do Dashboard e das TAGs são atualizados conforme as visitas chegam.</p>'}
+]}
+];
+let tutActive=0;
+function renderTutorial(){
+const menu=document.getElementById('tut-menu');
+const content=document.getElementById('tut-content');
+menu.innerHTML=TUT_DATA.map((sec,si)=>{
+let h='<div style="padding:4px 16px;margin-top:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--fg3)">'+sec.cat+'</div>';
+sec.items.forEach((it,ii)=>{const idx=TUT_DATA.slice(0,si).reduce((s,c)=>s+c.items.length,0)+ii;
+h+='<div class="tut-link'+(idx===tutActive?' act':'')+'" onclick="tutGo('+idx+')" style="padding:6px 16px;cursor:pointer;font-size:12.5px;color:'+(idx===tutActive?'var(--accent)':'var(--fg2)')+';border-left:2px solid '+(idx===tutActive?'var(--accent)':'transparent')+';transition:all .15s">'+it.t+'</div>'});
+return h}).join('');
+let ci=0;
+for(const sec of TUT_DATA){for(const it of sec.items){if(ci===tutActive){
+content.innerHTML='<div class="sc" style="padding:24px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--fg3);margin-bottom:6px">'+sec.cat+'</div><h1 style="font-size:22px;margin-bottom:16px">'+it.t+'</h1><div style="font-size:13.5px;line-height:1.7;color:var(--fg2)">'+it.b+'</div><div style="display:flex;gap:8px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">'+(tutActive>0?'<button class="btn gh" onclick="tutGo('+(tutActive-1)+')"><span class="ms" style="font-size:14px">arrow_back</span> Anterior</button>':'')+(ci<TUT_DATA.reduce((s,c)=>s+c.items.length,0)-1?'<button class="btn" onclick="tutGo('+(tutActive+1)+')">Próximo <span class="ms" style="font-size:14px">arrow_forward</span></button>':'')+'</div></div>';
+return}ci++}}
+}
+function tutGo(idx){tutActive=idx;renderTutorial();document.getElementById('tut-content')?.scrollIntoView({behavior:'smooth',block:'start'})}
+
+// INIT — check auth and load from API
+checkAuth();
+</script>
+
+</body></html>

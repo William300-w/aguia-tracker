@@ -1,0 +1,23 @@
+{
+  "name": "aguia-tracker",
+  "version": "1.0.0",
+  "description": "Águia Tracker — Sistema de rastreamento de cliques e conversões para afiliados",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "better-sqlite3": "^11.6.0",
+    "cors": "^2.8.5",
+    "geoip-lite": "^1.4.10",
+    "ua-parser-js": "^1.0.39",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "cookie-parser": "^1.4.7"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
