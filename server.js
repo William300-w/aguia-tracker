@@ -604,8 +604,8 @@ app.get('/manifest.json', (req, res) => {
     theme_color: '#f5a623',
     orientation: 'portrait-primary',
     icons: [
-      { src: '/eagle.webp', sizes: '192x192', type: 'image/webp' },
-      { src: '/eagle.webp', sizes: '512x512', type: 'image/webp' }
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
     ]
   });
 });
