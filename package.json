@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "express": "^4.21.0",
-    "better-sqlite3": "^11.6.0",
+    "pg": "^8.13.0",
     "cors": "^2.8.5",
     "geoip-lite": "^1.4.10",
     "ua-parser-js": "^1.0.39",
