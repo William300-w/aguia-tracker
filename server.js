@@ -10,7 +10,6 @@ const path = require('path');
 const crypto = require('crypto');
 const https = require('https');
 const http = require('http');
-const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -99,19 +98,16 @@ async function initDB() {
       telegram_enabled BOOLEAN DEFAULT false,
       email_enabled BOOLEAN DEFAULT false,
       email_to TEXT DEFAULT '',
-      email_smtp_host TEXT DEFAULT 'smtp.gmail.com',
-      email_smtp_port INTEGER DEFAULT 587,
-      email_smtp_user TEXT DEFAULT '',
-      email_smtp_pass TEXT DEFAULT '',
+      email_api_key TEXT DEFAULT '',
       notify_on_sale BOOLEAN DEFAULT true,
       notify_on_click BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `);
 
-  const emailCols = ['email_to','email_smtp_host','email_smtp_port','email_smtp_user','email_smtp_pass'];
+  const emailCols = ['email_to','email_api_key'];
   for (const col of emailCols) {
-    await pool.query(`ALTER TABLE notification_settings ADD COLUMN IF NOT EXISTS ${col} ${col === 'email_smtp_port' ? 'INTEGER DEFAULT 587' : "TEXT DEFAULT ''"}`).catch(() => {});
+    await pool.query(`ALTER TABLE notification_settings ADD COLUMN IF NOT EXISTS ${col} TEXT DEFAULT ''`).catch(() => {});
   }
 
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_tag ON events(tag_id)`);
@@ -231,24 +227,33 @@ function sendTelegram(botToken, chatId, message) {
 
 function sendEmail(settings, subject, html) {
   return new Promise((resolve, reject) => {
-    const transporter = nodemailer.createTransport({
-      host: settings.email_smtp_host || 'smtp.gmail.com',
-      port: settings.email_smtp_port || 587,
-      secure: (settings.email_smtp_port || 587) === 465,
-      auth: { user: settings.email_smtp_user, pass: settings.email_smtp_pass },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000
-    });
-    transporter.sendMail({
-      from: `"Águia Ads" <${settings.email_smtp_user}>`,
-      to: settings.email_to,
+    const data = JSON.stringify({
+      from: 'Águia Ads <onboarding@resend.dev>',
+      to: [settings.email_to],
       subject,
       html
-    }, (err) => {
-      if (err) reject(err);
-      else resolve();
     });
+    const req = https.request({
+      hostname: 'api.resend.com',
+      path: '/emails',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${settings.email_api_key}`,
+        'Content-Length': Buffer.byteLength(data)
+      }
+    }, (res) => {
+      let body = '';
+      res.on('data', c => body += c);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(body);
+        else reject(new Error(body || `HTTP ${res.statusCode}`));
+      });
+    });
+    req.on('error', (e) => reject(e));
+    req.setTimeout(15000, () => { req.destroy(); reject(new Error('Timeout')); });
+    req.write(data);
+    req.end();
   });
 }
 
@@ -283,8 +288,7 @@ app.get('/postback/:tagId', async (req, res) => {
         const msg = `🦅 <b>VENDA DETECTADA!</b>\n\n💰 Valor: $${revenue.toFixed(2)}\n📋 Tag: ${tagName}\n🌐 Rede: ${network || 'N/A'}\n📦 Oferta: ${offer || 'N/A'}\n🌍 País: ${geo.country || 'N/A'}\n🏙️ Cidade: ${geo.city || 'N/A'}\n⏰ ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;
         sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
       }
-      if (settings.email_enabled && settings.email_to && settings.email_smtp_user && settings.email_smtp_pass && settings.notify_on_sale) {
-        settings.email_smtp_pass = (settings.email_smtp_pass || '').replace(/\s+/g, '');
+      if (settings.email_enabled && settings.email_to && settings.email_api_key && settings.notify_on_sale) {
         const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
           <div style="text-align:center;margin-bottom:16px"><span style="font-size:40px">🦅</span><h2 style="color:#f5a623;margin:8px 0">VENDA DETECTADA!</h2></div>
           <table style="width:100%;font-size:14px;color:#ccc"><tr><td style="padding:6px 0">💰 <strong>Valor:</strong></td><td style="text-align:right;color:#4ade80;font-weight:700">$${revenue.toFixed(2)}</td></tr>
@@ -490,14 +494,14 @@ app.get('/api/notifications/settings', auth, async (req, res) => {
 
 app.put('/api/notifications/settings', auth, async (req, res) => {
   try {
-    const { telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, email_to, email_smtp_host, email_smtp_port, email_smtp_user, email_smtp_pass, notify_on_sale, notify_on_click } = req.body;
+    const { telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, email_to, email_api_key, notify_on_sale, notify_on_click } = req.body;
     const exists = await pool.query('SELECT id FROM notification_settings WHERE user_id = $1', [req.user.id]);
     if (exists.rows.length === 0) {
-      await pool.query('INSERT INTO notification_settings (user_id, telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, email_to, email_smtp_host, email_smtp_port, email_smtp_user, email_smtp_pass, notify_on_sale, notify_on_click) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',
-        [req.user.id, telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, email_to || '', email_smtp_host || 'smtp.gmail.com', email_smtp_port || 587, email_smtp_user || '', email_smtp_pass || '', notify_on_sale !== false, notify_on_click || false]);
+      await pool.query('INSERT INTO notification_settings (user_id, telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, email_to, email_api_key, notify_on_sale, notify_on_click) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)',
+        [req.user.id, telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, email_to || '', email_api_key || '', notify_on_sale !== false, notify_on_click || false]);
     } else {
-      await pool.query('UPDATE notification_settings SET telegram_bot_token=$1, telegram_chat_id=$2, telegram_enabled=$3, email_enabled=$4, email_to=$5, email_smtp_host=$6, email_smtp_port=$7, email_smtp_user=$8, email_smtp_pass=$9, notify_on_sale=$10, notify_on_click=$11 WHERE user_id=$12',
-        [telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, email_to || '', email_smtp_host || 'smtp.gmail.com', email_smtp_port || 587, email_smtp_user || '', email_smtp_pass || '', notify_on_sale !== false, notify_on_click || false, req.user.id]);
+      await pool.query('UPDATE notification_settings SET telegram_bot_token=$1, telegram_chat_id=$2, telegram_enabled=$3, email_enabled=$4, email_to=$5, email_api_key=$6, notify_on_sale=$7, notify_on_click=$8 WHERE user_id=$9',
+        [telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, email_to || '', email_api_key || '', notify_on_sale !== false, notify_on_click || false, req.user.id]);
     }
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -515,14 +519,13 @@ app.post('/api/notifications/test-telegram', auth, async (req, res) => {
 
 app.post('/api/notifications/test-email', auth, async (req, res) => {
   try {
-    const { email_to, email_smtp_host, email_smtp_port, email_smtp_user, email_smtp_pass } = req.body;
-    if (!email_to || !email_smtp_user || !email_smtp_pass) return res.status(400).json({ error: 'Preencha todos os campos de email' });
+    const { email_to, email_api_key } = req.body;
+    if (!email_to || !email_api_key) return res.status(400).json({ error: 'Preencha o email e a API Key do Resend' });
     const html = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
       <div style="text-align:center;margin-bottom:16px"><span style="font-size:40px">🦅</span><h2 style="color:#f5a623;margin:8px 0">Teste Águia Ads</h2></div>
       <p style="text-align:center;font-size:14px;color:#ccc">✅ Notificações por email configuradas com sucesso!<br>Você receberá alertas de vendas neste email.</p>
       <div style="text-align:center;margin-top:16px;font-size:11px;color:#888">Águia Ads — Sistema de Rastreamento</div></div>`;
-    const pass = (email_smtp_pass || '').replace(/\s+/g, '');
-    await sendEmail({ email_to, email_smtp_host: email_smtp_host || 'smtp.gmail.com', email_smtp_port: email_smtp_port || 587, email_smtp_user, email_smtp_pass: pass }, '🦅 Teste Águia Ads — Email Configurado!', html);
+    await sendEmail({ email_to, email_api_key }, '🦅 Teste Águia Ads — Email Configurado!', html);
     res.json({ ok: true });
   } catch (e) {
     console.error('Email test error:', e.message);

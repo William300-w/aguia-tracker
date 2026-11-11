@@ -610,29 +610,20 @@ tr:last-child td{border-bottom:none}
 </div>
 
 <div id="p-email-config" hidden>
-  <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:var(--fg2)">email</span><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Notificações › Email</div><h1>Configurar Email</h1><div class="sub-t">Receba notificações de vendas em tempo real por email</div></div></div></div>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:var(--fg2)">email</span><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Notificações › Email</div><h1>Configurar Email</h1><div class="sub-t">Receba notificações de vendas em tempo real por email (via Resend)</div></div></div></div>
   <div class="sc" style="max-width:600px">
-    <h2 style="margin-bottom:16px"><span class="ms" style="font-size:18px">mail</span> Configuração SMTP</h2>
-    <p style="color:var(--fg2);font-size:13px;margin-bottom:16px;line-height:1.6">Para receber notificações por email, configure seu servidor SMTP:</p>
+    <h2 style="margin-bottom:16px"><span class="ms" style="font-size:18px">mail</span> Configuração Resend</h2>
+    <p style="color:var(--fg2);font-size:13px;margin-bottom:16px;line-height:1.6">O Resend envia emails via API (gratuito: 100 emails/dia). Para configurar:</p>
     <ol style="color:var(--fg2);font-size:13px;margin-bottom:20px;padding-left:20px;line-height:2">
-      <li>Use o Gmail: ative a <strong>Verificação em 2 etapas</strong> na sua conta Google</li>
-      <li>Em <strong>Senhas de app</strong>, gere uma senha para "Correio"</li>
-      <li>Use seu email como "Usuário SMTP" e a senha gerada como "Senha SMTP"</li>
-      <li>Ou use outro provedor SMTP (Outlook, Yahoo, etc.)</li>
+      <li>Acesse <strong>resend.com</strong> e crie uma conta gratuita</li>
+      <li>No painel, vá em <strong>API Keys</strong> e crie uma nova chave</li>
+      <li>Cole a API Key abaixo e informe seu email</li>
     </ol>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Email para receber notificações</label>
       <input type="email" id="em-to" placeholder="seu@email.com" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
-      <div style="display:grid;grid-template-columns:1fr 100px;gap:12px">
-        <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Servidor SMTP</label>
-        <input type="text" id="em-host" placeholder="smtp.gmail.com" value="smtp.gmail.com" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
-        <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Porta</label>
-        <input type="number" id="em-port" placeholder="587" value="587" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
-      </div>
-      <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Usuário SMTP (seu email)</label>
-      <input type="text" id="em-user" placeholder="seu@gmail.com" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
-      <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Senha SMTP (Senha de App)</label>
-      <input type="password" id="em-pass" placeholder="xxxx xxxx xxxx xxxx" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
+      <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">API Key do Resend</label>
+      <input type="password" id="em-apikey" placeholder="re_xxxxxxxx..." style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--fg2)">
           <input type="checkbox" id="em-enabled" style="accent-color:var(--accent)"> Ativar notificações por Email
@@ -1655,10 +1646,7 @@ async function loadEmailSettings(){
     if(!r.ok)return;
     const s=await r.json();
     document.getElementById('em-to').value=s.email_to||'';
-    document.getElementById('em-host').value=s.email_smtp_host||'smtp.gmail.com';
-    document.getElementById('em-port').value=s.email_smtp_port||587;
-    document.getElementById('em-user').value=s.email_smtp_user||'';
-    document.getElementById('em-pass').value=s.email_smtp_pass||'';
+    document.getElementById('em-apikey').value=s.email_api_key||'';
     document.getElementById('em-enabled').checked=!!s.email_enabled;
   }catch(e){}
 }
@@ -1668,10 +1656,7 @@ async function saveEmailSettings(){
     const r=await fetch('/api/notifications/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         email_to:document.getElementById('em-to').value.trim(),
-        email_smtp_host:document.getElementById('em-host').value.trim(),
-        email_smtp_port:parseInt(document.getElementById('em-port').value)||587,
-        email_smtp_user:document.getElementById('em-user').value.trim(),
-        email_smtp_pass:document.getElementById('em-pass').value.trim(),
+        email_api_key:document.getElementById('em-apikey').value.trim(),
         email_enabled:document.getElementById('em-enabled').checked,
         notify_on_sale:true
       })});
@@ -1680,21 +1665,15 @@ async function saveEmailSettings(){
   }catch(e){st.innerHTML='<span style="color:var(--red)">❌ Erro de conexão</span>'}
 }
 async function testEmail(){
-  const to=document.getElementById('em-to').value.trim(),user=document.getElementById('em-user').value.trim(),pass=document.getElementById('em-pass').value.trim();
+  const to=document.getElementById('em-to').value.trim(),apikey=document.getElementById('em-apikey').value.trim();
   const st=document.getElementById('em-status');
-  if(!to||!user||!pass){st.innerHTML='<span style="color:var(--red)">Preencha Email, Usuário SMTP e Senha</span>';return}
+  if(!to||!apikey){st.innerHTML='<span style="color:var(--red)">Preencha o Email e a API Key</span>';return}
   st.innerHTML='<span style="color:var(--fg2)">Enviando teste...</span>';
   try{
     const r=await fetch('/api/notifications/test-email',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        email_to:to,
-        email_smtp_host:document.getElementById('em-host').value.trim()||'smtp.gmail.com',
-        email_smtp_port:parseInt(document.getElementById('em-port').value)||587,
-        email_smtp_user:user,
-        email_smtp_pass:pass
-      })});
+      body:JSON.stringify({email_to:to,email_api_key:apikey})});
     if(r.ok){st.innerHTML='<span style="color:var(--green)">✅ Email de teste enviado! Verifique sua caixa de entrada.</span>';showToast('Teste de email enviado!')}
-    else{const d=await r.json().catch(()=>({}));st.innerHTML='<span style="color:var(--red)">❌ Erro: '+(d.error||'Verifique as configurações SMTP')+'</span>'}
+    else{const d=await r.json().catch(()=>({}));st.innerHTML='<span style="color:var(--red)">❌ Erro: '+(d.error||'Verifique a API Key do Resend')+'</span>'}
   }catch(e){st.innerHTML='<span style="color:var(--red)">❌ Erro de conexão</span>'}
 }
 
