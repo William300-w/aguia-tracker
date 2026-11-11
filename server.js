@@ -285,7 +285,7 @@ app.get('/postback/:tagId', async (req, res) => {
     if (ns.rows.length > 0) {
       const settings = ns.rows[0];
       if (settings.telegram_enabled && settings.telegram_bot_token && settings.telegram_chat_id && settings.notify_on_sale) {
-        const msg = `🦅 <b>VENDA DETECTADA!</b>\n\n💰 Valor: $${revenue.toFixed(2)}\n📋 Tag: ${tagName}\n🌐 Rede: ${network || 'N/A'}\n📦 Oferta: ${offer || 'N/A'}\n🌍 País: ${geo.country || 'N/A'}\n🏙️ Cidade: ${geo.city || 'N/A'}\n⏰ ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;
+        const msg = `<b>Águia Ads - Venda Aprovada</b>\n${network || offer || 'Venda'} - USD ${revenue.toFixed(2)}`;
         sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
       }
       if (settings.email_enabled && settings.email_to && settings.email_api_key && settings.notify_on_sale) {
@@ -511,7 +511,7 @@ app.post('/api/notifications/test-telegram', auth, async (req, res) => {
   try {
     const { telegram_bot_token, telegram_chat_id } = req.body;
     if (!telegram_bot_token || !telegram_chat_id) return res.status(400).json({ error: 'Token e Chat ID obrigatórios' });
-    const msg = '🦅 <b>Teste Águia Ads</b>\n\n✅ Notificações Telegram configuradas com sucesso!\nVocê receberá alertas de vendas aqui.';
+    const msg = '<b>Águia Ads - Teste</b>\nNotificações configuradas com sucesso! ✅';
     await sendTelegram(telegram_bot_token, telegram_chat_id, msg);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
