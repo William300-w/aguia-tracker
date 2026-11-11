@@ -220,11 +220,30 @@ tr:last-child td{border-bottom:none}
   width:38px;height:38px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;color:var(--fg);
   font-size:18px;cursor:pointer;align-items:center;justify-content:center}
 .sbo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:45}
+
+/* BOTTOM NAV */
+.bnav{display:none}
+.mob-menu-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--fg);transition:background .15s}
+.mob-menu-item:hover,.mob-menu-item:active{background:var(--bg3)}
+.mob-menu-item .ms{font-size:20px;color:var(--fg2)}
+.mob-menu-sep{height:1px;background:var(--border);margin:8px 0}
+
 @media(max-width:800px){
-  .sb{transform:translateX(-100%);transition:transform .25s} .sb.open{transform:translateX(0)}
-  .sbo.open{display:block} .mt{display:flex} .mn{margin-left:0;padding:56px 10px 16px}
+  .sb{display:none!important} .sbo{display:none!important} .mt{display:none!important}
+  .mn{margin-left:0;padding:12px 12px 80px}
+  #top-navbar{display:none!important}
   .kg{grid-template-columns:1fr 1fr} .kg2{grid-template-columns:1fr 1fr} .fg{grid-template-columns:1fr 1fr} .tw{grid-template-columns:1fr}
   .af{flex-direction:column}
+  .bnav{display:flex;position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--bg2);border-top:1px solid var(--border);z-index:100;
+    padding-bottom:env(safe-area-inset-bottom,0px);align-items:center;justify-content:space-around}
+  .bnav-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;height:100%;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;position:relative;border:none;background:none;padding:0}
+  .bnav-tab .bnav-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .bnav-tab .ms{font-size:24px;color:var(--fg3);transition:color .2s}
+  .bnav-tab .bnav-label{font-size:10px;color:var(--fg3);font-weight:500;transition:color .2s}
+  .bnav-tab.act .bnav-icon{background:var(--accent)}
+  .bnav-tab.act .ms{color:#0c0c0f}
+  .bnav-tab.act .bnav-label{color:var(--accent);font-weight:700}
 }
 @media(max-width:480px){.kg{grid-template-columns:1fr} .fg{grid-template-columns:1fr}}
 </style>
@@ -298,7 +317,7 @@ tr:last-child td{border-bottom:none}
 
 <div class="mn">
 <!-- TOP NAVBAR -->
-<div style="display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-bottom:16px;padding:6px 0;flex-wrap:wrap">
+<div id="top-navbar" style="display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-bottom:16px;padding:6px 0;flex-wrap:wrap">
   <button id="sound-btn" class="btn gh" style="padding:5px 8px;border-radius:8px" onclick="toggleSaleSound()" title="Som de venda"><span class="ms" style="font-size:20px">volume_up</span></button>
   <button class="btn gh" style="padding:5px 8px;border-radius:8px" onclick="openNotifPanel()"><span class="ms" style="font-size:20px">notifications</span></button>
   <audio id="sale-sound" preload="auto" src="/som_da_alegria.mp3"></audio>
@@ -728,7 +747,97 @@ tr:last-child td{border-bottom:none}
   <div style="overflow-x:auto"><table><thead><tr><th>Produto</th><th>Rede</th><th>Payout</th><th>Trackers</th><th>Conversões</th><th>Status</th><th></th></tr></thead><tbody id="prod-b"></tbody></table></div></div>
 </div>
 
+<!-- ══════════ MOBILE MENU ══════════ -->
+<div id="p-mobile-menu" hidden>
+  <div style="padding:8px 4px">
+    <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:16px">
+      <div style="width:50px;height:50px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center">
+        <span class="ms" style="font-size:28px;color:#0c0c0f">person</span>
+      </div>
+      <div>
+        <div id="mob-user-name" style="font-weight:700;font-size:15px">Usuário</div>
+        <div id="mob-user-email" style="font-size:12px;color:var(--fg3)">usuario@email.com</div>
+        <div style="margin-top:4px;display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(245,166,35,.15);color:var(--accent)">Plano Pro</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
+      <div class="mob-menu-item" onclick="go('home')"><span class="ms">home</span> Início</div>
+      <div class="mob-menu-item" onclick="go('financial')"><span class="ms">bar_chart</span> Dashboard Financeiro</div>
+      <div class="mob-menu-item" onclick="go('tags')"><span class="ms">sell</span> TAGs Águia</div>
+      <div class="mob-menu-item" onclick="go('projects')"><span class="ms">folder</span> Projetos</div>
+      <div class="mob-menu-item" onclick="go('trackers')"><span class="ms">track_changes</span> Trackers</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
+      <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px">Gerenciador de Anúncios</div>
+      <div class="mob-menu-item" onclick="go('gads')"><span class="ms">ads_click</span> Google Ads</div>
+      <div class="mob-menu-item" onclick="go('meta')"><span class="ms">campaign</span> Meta Ads</div>
+      <div class="mob-menu-item" onclick="go('newsbreak')"><span class="ms">newspaper</span> NewsBreak</div>
+      <div class="mob-menu-item" onclick="go('taboola')"><span class="ms">table_chart</span> Taboola</div>
+      <div class="mob-menu-item" onclick="go('tiktok')"><span class="ms">music_note</span> TikTok Ads</div>
+      <div class="mob-menu-item" onclick="go('criar-campanha')"><span class="ms">auto_awesome</span> Criar Campanha IA</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
+      <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px">Notificações</div>
+      <div class="mob-menu-item" onclick="go('notif-link')"><span class="ms">link</span> Links de Notificação</div>
+      <div class="mob-menu-item" onclick="go('notif-list')"><span class="ms">receipt_long</span> Vendas / Notificações</div>
+      <div class="mob-menu-item" onclick="go('telegram-config')"><span class="ms">send</span> Configurar Telegram</div>
+      <div class="mob-menu-item" onclick="go('email-config')"><span class="ms">email</span> Configurar Email</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
+      <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px">Checkout</div>
+      <div class="mob-menu-item" onclick="go('ck-link')"><span class="ms">shopping_cart</span> Links de Checkout</div>
+      <div class="mob-menu-item" onclick="go('ck-list')"><span class="ms">shopping_bag</span> Lista de Checkouts</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
+      <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px">Integrações</div>
+      <div class="mob-menu-item" onclick="go('accounts')"><span class="ms">account_circle</span> Central de Contas</div>
+      <div class="mob-menu-item" onclick="go('vturb-int')"><span class="ms">play_circle</span> VTurb Analytics</div>
+      <div class="mob-menu-item" onclick="go('apikeys')"><span class="ms">key</span> API Keys</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
+      <div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px">Avançado</div>
+      <div class="mob-menu-item" onclick="go('products')"><span class="ms">inventory_2</span> Produtos</div>
+      <div class="mob-menu-item" onclick="go('producer-url')"><span class="ms">link</span> URL Produtor</div>
+      <div class="mob-menu-item" onclick="go('reports')"><span class="ms">description</span> Relatórios</div>
+      <div class="mob-menu-item" onclick="go('domains')"><span class="ms">language</span> Domínios</div>
+      <div class="mob-menu-item" onclick="go('taxes')"><span class="ms">bar_chart</span> Impostos</div>
+      <div class="mob-menu-item" onclick="go('fees')"><span class="ms">campaign</span> Taxas</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
+      <div class="mob-menu-item" onclick="go('tutorial')"><span class="ms" style="color:var(--accent)">school</span> Central de Ajuda</div>
+      <div class="mob-menu-item" onclick="toggleTheme()"><span class="ms">light_mode</span> <span>Alternar Tema</span></div>
+    </div>
+    <div style="padding:8px 0">
+      <div class="mob-menu-item" onclick="showToast('Sessão encerrada!')" style="color:var(--red)"><span class="ms" style="color:var(--red)">logout</span> Sair da Conta</div>
+    </div>
+  </div>
 </div>
+
+</div>
+
+<!-- BOTTOM NAV BAR -->
+<nav class="bnav" id="bottom-nav">
+  <button class="bnav-tab act" data-nav="home" onclick="go('home')">
+    <div class="bnav-icon"><span class="ms">home</span></div>
+    <span class="bnav-label">Início</span>
+  </button>
+  <button class="bnav-tab" data-nav="vendas" onclick="go('notif-list')">
+    <div class="bnav-icon"><span class="ms">attach_money</span></div>
+    <span class="bnav-label">Vendas</span>
+  </button>
+  <button class="bnav-tab" data-nav="campanhas" onclick="go('tags')">
+    <div class="bnav-icon"><span class="ms">campaign</span></div>
+    <span class="bnav-label">Campanhas</span>
+  </button>
+  <button class="bnav-tab" data-nav="notificacoes" onclick="go('notif-link')">
+    <div class="bnav-icon"><span class="ms">notifications</span></div>
+    <span class="bnav-label">Notificações</span>
+  </button>
+  <button class="bnav-tab" data-nav="menu" onclick="go('mobile-menu')">
+    <div class="bnav-icon"><span class="ms">grid_view</span></div>
+    <span class="bnav-label">Menu</span>
+  </button>
+</nav>
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center">
@@ -878,6 +987,12 @@ document.getElementById('p-'+p).hidden=false;
 document.querySelectorAll('.ni[data-p]').forEach(n=>n.classList.toggle('act',n.dataset.p===p));
 document.querySelector('.ni[data-p="home"]').classList.toggle('act',p==='home');
 document.querySelector('.sb').classList.remove('open');document.querySelector('.sbo').classList.remove('open');
+var bnMap={home:'home','notif-list':'vendas',tags:'campanhas','notif-link':'notificacoes','mobile-menu':'menu'};
+var activeNav=bnMap[p]||'menu';
+document.querySelectorAll('.bnav-tab').forEach(function(t){t.classList.toggle('act',t.dataset.nav===activeNav)});
+if(p==='mobile-menu'){var mn=document.getElementById('mob-user-name'),me=document.getElementById('mob-user-email');
+var dn=document.getElementById('user-display-name'),de=document.getElementById('user-display-email');
+if(mn&&dn)mn.textContent=dn.textContent;if(me&&de)me.textContent=de.textContent}
 if(p==='financial'){populateFinFilters();rFin()}if(p==='trackers')rTk();if(p==='projects')rPj();if(p==='tags')rTags();if(p==='tutorial')renderTutorial();if(p==='telegram-config')loadTelegramSettings();if(p==='email-config')loadEmailSettings();
 if(p==='notif-list')rNList();if(p==='ck-list')rCkList();if(p==='products')rProd();if(p==='taxes')rTax();
 if(p==='fees')rFees();if(p==='domains')rDom();if(p==='apikeys')rAk();if(p==='vturb')rVsl();if(p==='producer-url')rPU();
