@@ -1859,17 +1859,25 @@ function installPWA() {
   if (old) old.remove();
   var overlay = document.createElement('div');
   overlay.id = 'install-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto';
   overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
-  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  var steps = isIOS
-    ? '<b>1.</b> Toque no icone de <b>compartilhar</b> (quadrado com seta) na barra do navegador<br><br><b>2.</b> Role e toque em <b>"Adicionar a Tela de Inicio"</b><br><br><b>3.</b> Toque em <b>"Adicionar"</b>'
-    : '<b>1.</b> Toque no <b>menu &#8942;</b> (3 pontinhos) do navegador<br><br><b>2.</b> Toque em <b>"Adicionar a tela inicial"</b> ou <b>"Instalar app"</b><br><br><b>3.</b> Confirme tocando em <b>"Adicionar"</b>';
+  var appUrl = window.location.origin;
   overlay.innerHTML = '<div style="background:#1a1a2e;border:1px solid #f5a623;border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center;color:#fff">'
     + '<div style="font-size:36px;margin-bottom:12px">&#129413;</div>'
-    + '<div style="font-weight:700;font-size:17px;margin-bottom:16px">Como instalar o Aguia Ads</div>'
-    + '<div style="text-align:left;font-size:14px;line-height:1.7;color:#ccc">' + steps + '</div>'
-    + '<button onclick="this.closest(\'#install-overlay\').remove()" style="margin-top:20px;background:#f5a623;color:#0c0c0f;border:none;padding:10px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer">Entendi</button>'
+    + '<div style="font-weight:700;font-size:17px;margin-bottom:12px">Instalar Aguia Ads</div>'
+    + '<div style="background:rgba(245,166,35,.15);border-radius:10px;padding:12px;margin-bottom:16px;text-align:left">'
+    + '<div style="font-weight:700;font-size:13px;color:#f5a623;margin-bottom:6px">&#9733; Melhor opcao: Google Chrome</div>'
+    + '<div style="font-size:12px;color:#ccc;line-height:1.5">Abra o Chrome e acesse:<br><b style="color:#fff;word-break:break-all">' + appUrl + '</b><br>O Chrome instala o app com icone e tudo.</div>'
+    + '</div>'
+    + '<div style="text-align:left;font-size:13px;color:#999;margin-bottom:10px">Pelo Chrome:</div>'
+    + '<div style="text-align:left;font-size:14px;line-height:1.7;color:#ccc;margin-bottom:16px">'
+    + '<b>1.</b> Abra o link acima no <b>Chrome</b><br>'
+    + '<b>2.</b> Faca login na sua conta<br>'
+    + '<b>3.</b> Toque no <b>menu &#8942;</b> (3 pontinhos)<br>'
+    + '<b>4.</b> Toque em <b>"Instalar app"</b> ou <b>"Add to Home screen"</b></div>'
+    + '<div style="border-top:1px solid #333;padding-top:12px;text-align:left;font-size:12px;color:#666;line-height:1.5">'
+    + 'Pelo navegador atual: menu &#8942; &gt; "Adicionar a tela inicial" (cria atalho simples)</div>'
+    + '<button onclick="this.closest(\'#install-overlay\').remove()" style="margin-top:16px;background:#f5a623;color:#0c0c0f;border:none;padding:10px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer">Entendi</button>'
     + '</div>';
   document.body.appendChild(overlay);
 }
