@@ -664,6 +664,7 @@ app.get('/api/script/:tagId', (req, res) => {
 });
 
 app.get('/manifest.json', (req, res) => {
+  res.set('Cache-Control', 'no-cache');
   res.json({
     name: 'Águia Ads',
     short_name: 'Águia',
@@ -685,8 +686,8 @@ app.get('/manifest.json', (req, res) => {
 app.get('/sw.js', (req, res) => {
   res.set('Content-Type', 'application/javascript');
   res.send(`
-const CACHE_NAME = 'aguia-v1';
-const OFFLINE_URLS = ['/', '/eagle.webp'];
+const CACHE_NAME = 'aguia-v2';
+const OFFLINE_URLS = ['/', '/eagle.webp', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(OFFLINE_URLS)));
