@@ -810,7 +810,7 @@ tr:last-child td{border-bottom:none}
       <div class="mob-menu-item" onclick="go('tutorial')"><span class="ms" style="color:var(--accent)">school</span> Central de Ajuda</div>
       <div class="mob-menu-item" onclick="toggleTheme()"><span class="ms">light_mode</span> <span>Alternar Tema</span></div>
     </div>
-    <div id="pwa-install-section" hidden style="background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(245,166,35,.04));border:1px solid var(--accent);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
+    <div id="pwa-install-section" style="background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(245,166,35,.04));border:1px solid var(--accent);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
       <div style="font-size:28px;margin-bottom:6px">🦅</div>
       <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--fg)">Instalar Águia Ads</div>
       <div style="font-size:12px;color:var(--fg2);margin-bottom:12px">Receba notificações e acesse mais rápido</div>
@@ -1839,9 +1839,11 @@ let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  var sec = document.getElementById('pwa-install-section');
-  if (sec) sec.hidden = false;
 });
+if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+  var sec = document.getElementById('pwa-install-section');
+  if (sec) sec.hidden = true;
+}
 function installPWA() {
   if (!deferredPrompt) {
     showToast('Abra o menu do navegador e toque em "Adicionar à tela inicial"');
