@@ -12,7 +12,8 @@ const crypto = require('crypto');
 const https = require('https');
 const http = require('http');
 let webpush = null;
-try { webpush = require('web-push'); } catch (e) { console.log('web-push not available:', e.message); }
+let webpushError = '';
+try { webpush = require('web-push'); } catch (e) { webpushError = e.message; console.log('web-push not available:', e.message); }
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -598,7 +599,7 @@ app.post('/api/notifications/test-email', auth, async (req, res) => {
 // ============ PUSH NOTIFICATIONS ============
 
 app.get('/api/push/vapid-key', auth, (req, res) => {
-  res.json({ publicKey: VAPID_PUBLIC });
+  res.json({ publicKey: VAPID_PUBLIC, webpushLoaded: !!webpush, error: webpushError || undefined });
 });
 
 app.post('/api/push/subscribe', auth, async (req, res) => {
