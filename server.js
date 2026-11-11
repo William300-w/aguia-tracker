@@ -230,19 +230,25 @@ function sendTelegram(botToken, chatId, message) {
 }
 
 function sendEmail(settings, subject, html) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
       host: settings.email_smtp_host || 'smtp.gmail.com',
       port: settings.email_smtp_port || 587,
       secure: (settings.email_smtp_port || 587) === 465,
-      auth: { user: settings.email_smtp_user, pass: settings.email_smtp_pass }
+      auth: { user: settings.email_smtp_user, pass: settings.email_smtp_pass },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000
     });
     transporter.sendMail({
       from: `"Águia Ads" <${settings.email_smtp_user}>`,
       to: settings.email_to,
       subject,
       html
-    }, () => resolve());
+    }, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
   });
 }
 
@@ -278,6 +284,7 @@ app.get('/postback/:tagId', async (req, res) => {
         sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
       }
       if (settings.email_enabled && settings.email_to && settings.email_smtp_user && settings.email_smtp_pass && settings.notify_on_sale) {
+        settings.email_smtp_pass = (settings.email_smtp_pass || '').replace(/\s+/g, '');
         const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
           <div style="text-align:center;margin-bottom:16px"><span style="font-size:40px">🦅</span><h2 style="color:#f5a623;margin:8px 0">VENDA DETECTADA!</h2></div>
           <table style="width:100%;font-size:14px;color:#ccc"><tr><td style="padding:6px 0">💰 <strong>Valor:</strong></td><td style="text-align:right;color:#4ade80;font-weight:700">$${revenue.toFixed(2)}</td></tr>
@@ -514,9 +521,13 @@ app.post('/api/notifications/test-email', auth, async (req, res) => {
       <div style="text-align:center;margin-bottom:16px"><span style="font-size:40px">🦅</span><h2 style="color:#f5a623;margin:8px 0">Teste Águia Ads</h2></div>
       <p style="text-align:center;font-size:14px;color:#ccc">✅ Notificações por email configuradas com sucesso!<br>Você receberá alertas de vendas neste email.</p>
       <div style="text-align:center;margin-top:16px;font-size:11px;color:#888">Águia Ads — Sistema de Rastreamento</div></div>`;
-    await sendEmail({ email_to, email_smtp_host: email_smtp_host || 'smtp.gmail.com', email_smtp_port: email_smtp_port || 587, email_smtp_user, email_smtp_pass }, '🦅 Teste Águia Ads — Email Configurado!', html);
+    const pass = (email_smtp_pass || '').replace(/\s+/g, '');
+    await sendEmail({ email_to, email_smtp_host: email_smtp_host || 'smtp.gmail.com', email_smtp_port: email_smtp_port || 587, email_smtp_user, email_smtp_pass: pass }, '🦅 Teste Águia Ads — Email Configurado!', html);
     res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    console.error('Email test error:', e.message);
+    res.status(500).json({ error: e.message || 'Erro ao enviar email' });
+  }
 });
 
 // ============ TRACKING SCRIPT GENERATOR ============
