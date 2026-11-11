@@ -11,7 +11,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 const https = require('https');
 const http = require('http');
-const webpush = require('web-push');
+let webpush = null;
+try { webpush = require('web-push'); } catch (e) { console.log('web-push not available:', e.message); }
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,15 +20,17 @@ const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('he
 
 let VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || '';
 let VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
-if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
-  const vapidKeys = webpush.generateVAPIDKeys();
-  VAPID_PUBLIC = vapidKeys.publicKey;
-  VAPID_PRIVATE = vapidKeys.privateKey;
-  console.log('VAPID keys generated. Set these as env vars for persistence:');
-  console.log('VAPID_PUBLIC_KEY=' + VAPID_PUBLIC);
-  console.log('VAPID_PRIVATE_KEY=' + VAPID_PRIVATE);
+if (webpush) {
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
+    const vapidKeys = webpush.generateVAPIDKeys();
+    VAPID_PUBLIC = vapidKeys.publicKey;
+    VAPID_PRIVATE = vapidKeys.privateKey;
+    console.log('VAPID keys generated. Set these as env vars for persistence:');
+    console.log('VAPID_PUBLIC_KEY=' + VAPID_PUBLIC);
+    console.log('VAPID_PRIVATE_KEY=' + VAPID_PRIVATE);
+  }
+  webpush.setVapidDetails('mailto:noreply@aguia-ads.com', VAPID_PUBLIC, VAPID_PRIVATE);
 }
-webpush.setVapidDetails('mailto:noreply@aguia-ads.com', VAPID_PUBLIC, VAPID_PRIVATE);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -612,6 +615,7 @@ app.post('/api/push/subscribe', auth, async (req, res) => {
 });
 
 async function sendPushToUser(userId, payload) {
+  if (!webpush) return;
   try {
     const subs = await pool.query('SELECT * FROM push_subscriptions WHERE user_id = $1', [userId]);
     for (const sub of subs.rows) {
