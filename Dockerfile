@@ -1,7 +1,8 @@
 FROM node:18-slim
 WORKDIR /app
 COPY package.json ./
-RUN npm install --production
+ARG CACHE_BUST=2
+RUN npm install --production && npm ls web-push && echo "web-push installed OK"
 COPY . .
 EXPOSE 3000
 ENV PORT=3000
