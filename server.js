@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const https = require('https');
 const http = require('http');
@@ -225,6 +226,32 @@ function sendTelegram(botToken, chatId, message) {
   });
 }
 
+function sendTelegramAudio(botToken, chatId) {
+  return new Promise((resolve) => {
+    const audioPath = path.join(__dirname, 'public', 'som_da_alegria.mp3');
+    const audioData = fs.readFileSync(audioPath);
+    const boundary = '----AguiaAds' + Date.now();
+    const parts = [];
+    parts.push(`--${boundary}\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n${chatId}`);
+    parts.push(`--${boundary}\r\nContent-Disposition: form-data; name="audio"; filename="som_da_alegria.mp3"\r\nContent-Type: audio/mpeg\r\n\r\n`);
+    const body = Buffer.concat([
+      Buffer.from(parts[0] + '\r\n'),
+      Buffer.from(parts[1]),
+      audioData,
+      Buffer.from(`\r\n--${boundary}--\r\n`)
+    ]);
+    const req = https.request({
+      hostname: 'api.telegram.org',
+      path: `/bot${botToken}/sendAudio`,
+      method: 'POST',
+      headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}`, 'Content-Length': body.length }
+    }, (res) => { res.resume(); resolve(); });
+    req.on('error', () => resolve());
+    req.write(body);
+    req.end();
+  });
+}
+
 function sendEmail(settings, subject, html) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
@@ -286,7 +313,9 @@ app.get('/postback/:tagId', async (req, res) => {
       const settings = ns.rows[0];
       if (settings.telegram_enabled && settings.telegram_bot_token && settings.telegram_chat_id && settings.notify_on_sale) {
         const msg = `<b>Águia Ads - Venda Aprovada</b>\n${network || offer || 'Venda'} - USD ${revenue.toFixed(2)}`;
-        sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
+        sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).then(() => {
+          sendTelegramAudio(settings.telegram_bot_token, settings.telegram_chat_id).catch(() => {});
+        }).catch(() => {});
       }
       if (settings.email_enabled && settings.email_to && settings.email_api_key && settings.notify_on_sale) {
         const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
