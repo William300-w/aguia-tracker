@@ -313,7 +313,9 @@ app.get('/postback/:tagId', async (req, res) => {
       const settings = ns.rows[0];
       if (settings.telegram_enabled && settings.telegram_bot_token && settings.telegram_chat_id && settings.notify_on_sale) {
         const msg = `<b>Águia Ads - Venda Aprovada</b>\n${network || offer || 'Venda'} - USD ${revenue.toFixed(2)}`;
-        sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
+        sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).then(() => {
+          sendTelegramAudio(settings.telegram_bot_token, settings.telegram_chat_id).catch(() => {});
+        }).catch(() => {});
       }
       if (settings.email_enabled && settings.email_to && settings.email_api_key && settings.notify_on_sale) {
         const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
