@@ -10,6 +10,7 @@ const path = require('path');
 const crypto = require('crypto');
 const https = require('https');
 const http = require('http');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -97,11 +98,21 @@ async function initDB() {
       telegram_chat_id TEXT DEFAULT '',
       telegram_enabled BOOLEAN DEFAULT false,
       email_enabled BOOLEAN DEFAULT false,
+      email_to TEXT DEFAULT '',
+      email_smtp_host TEXT DEFAULT 'smtp.gmail.com',
+      email_smtp_port INTEGER DEFAULT 587,
+      email_smtp_user TEXT DEFAULT '',
+      email_smtp_pass TEXT DEFAULT '',
       notify_on_sale BOOLEAN DEFAULT true,
       notify_on_click BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `);
+
+  const emailCols = ['email_to','email_smtp_host','email_smtp_port','email_smtp_user','email_smtp_pass'];
+  for (const col of emailCols) {
+    await pool.query(`ALTER TABLE notification_settings ADD COLUMN IF NOT EXISTS ${col} ${col === 'email_smtp_port' ? 'INTEGER DEFAULT 587' : "TEXT DEFAULT ''"}`).catch(() => {});
+  }
 
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_tag ON events(tag_id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at)`);
@@ -218,6 +229,23 @@ function sendTelegram(botToken, chatId, message) {
   });
 }
 
+function sendEmail(settings, subject, html) {
+  return new Promise((resolve) => {
+    const transporter = nodemailer.createTransport({
+      host: settings.email_smtp_host || 'smtp.gmail.com',
+      port: settings.email_smtp_port || 587,
+      secure: (settings.email_smtp_port || 587) === 465,
+      auth: { user: settings.email_smtp_user, pass: settings.email_smtp_pass }
+    });
+    transporter.sendMail({
+      from: `"Águia Ads" <${settings.email_smtp_user}>`,
+      to: settings.email_to,
+      subject,
+      html
+    }, () => resolve());
+  });
+}
+
 app.get('/postback/:tagId', async (req, res) => {
   try {
     const { tagId } = req.params;
@@ -248,6 +276,19 @@ app.get('/postback/:tagId', async (req, res) => {
       if (settings.telegram_enabled && settings.telegram_bot_token && settings.telegram_chat_id && settings.notify_on_sale) {
         const msg = `🦅 <b>VENDA DETECTADA!</b>\n\n💰 Valor: $${revenue.toFixed(2)}\n📋 Tag: ${tagName}\n🌐 Rede: ${network || 'N/A'}\n📦 Oferta: ${offer || 'N/A'}\n🌍 País: ${geo.country || 'N/A'}\n🏙️ Cidade: ${geo.city || 'N/A'}\n⏰ ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`;
         sendTelegram(settings.telegram_bot_token, settings.telegram_chat_id, msg).catch(() => {});
+      }
+      if (settings.email_enabled && settings.email_to && settings.email_smtp_user && settings.email_smtp_pass && settings.notify_on_sale) {
+        const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
+          <div style="text-align:center;margin-bottom:16px"><span style="font-size:40px">🦅</span><h2 style="color:#f5a623;margin:8px 0">VENDA DETECTADA!</h2></div>
+          <table style="width:100%;font-size:14px;color:#ccc"><tr><td style="padding:6px 0">💰 <strong>Valor:</strong></td><td style="text-align:right;color:#4ade80;font-weight:700">$${revenue.toFixed(2)}</td></tr>
+          <tr><td style="padding:6px 0">📋 <strong>Tag:</strong></td><td style="text-align:right">${tagName}</td></tr>
+          <tr><td style="padding:6px 0">🌐 <strong>Rede:</strong></td><td style="text-align:right">${network || 'N/A'}</td></tr>
+          <tr><td style="padding:6px 0">📦 <strong>Oferta:</strong></td><td style="text-align:right">${offer || 'N/A'}</td></tr>
+          <tr><td style="padding:6px 0">🌍 <strong>País:</strong></td><td style="text-align:right">${geo.country || 'N/A'}</td></tr>
+          <tr><td style="padding:6px 0">🏙️ <strong>Cidade:</strong></td><td style="text-align:right">${geo.city || 'N/A'}</td></tr>
+          <tr><td style="padding:6px 0">⏰ <strong>Data:</strong></td><td style="text-align:right">${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td></tr></table>
+          <div style="text-align:center;margin-top:16px;font-size:11px;color:#888">Águia Ads — Sistema de Rastreamento</div></div>`;
+        sendEmail(settings, `🦅 Venda $${revenue.toFixed(2)} — ${tagName}`, emailHtml).catch(() => {});
       }
     }
 
@@ -442,14 +483,14 @@ app.get('/api/notifications/settings', auth, async (req, res) => {
 
 app.put('/api/notifications/settings', auth, async (req, res) => {
   try {
-    const { telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, notify_on_sale, notify_on_click } = req.body;
+    const { telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, email_to, email_smtp_host, email_smtp_port, email_smtp_user, email_smtp_pass, notify_on_sale, notify_on_click } = req.body;
     const exists = await pool.query('SELECT id FROM notification_settings WHERE user_id = $1', [req.user.id]);
     if (exists.rows.length === 0) {
-      await pool.query('INSERT INTO notification_settings (user_id, telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, notify_on_sale, notify_on_click) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-        [req.user.id, telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, notify_on_sale !== false, notify_on_click || false]);
+      await pool.query('INSERT INTO notification_settings (user_id, telegram_bot_token, telegram_chat_id, telegram_enabled, email_enabled, email_to, email_smtp_host, email_smtp_port, email_smtp_user, email_smtp_pass, notify_on_sale, notify_on_click) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',
+        [req.user.id, telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, email_to || '', email_smtp_host || 'smtp.gmail.com', email_smtp_port || 587, email_smtp_user || '', email_smtp_pass || '', notify_on_sale !== false, notify_on_click || false]);
     } else {
-      await pool.query('UPDATE notification_settings SET telegram_bot_token = $1, telegram_chat_id = $2, telegram_enabled = $3, email_enabled = $4, notify_on_sale = $5, notify_on_click = $6 WHERE user_id = $7',
-        [telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, notify_on_sale !== false, notify_on_click || false, req.user.id]);
+      await pool.query('UPDATE notification_settings SET telegram_bot_token=$1, telegram_chat_id=$2, telegram_enabled=$3, email_enabled=$4, email_to=$5, email_smtp_host=$6, email_smtp_port=$7, email_smtp_user=$8, email_smtp_pass=$9, notify_on_sale=$10, notify_on_click=$11 WHERE user_id=$12',
+        [telegram_bot_token || '', telegram_chat_id || '', telegram_enabled || false, email_enabled || false, email_to || '', email_smtp_host || 'smtp.gmail.com', email_smtp_port || 587, email_smtp_user || '', email_smtp_pass || '', notify_on_sale !== false, notify_on_click || false, req.user.id]);
     }
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -459,8 +500,21 @@ app.post('/api/notifications/test-telegram', auth, async (req, res) => {
   try {
     const { telegram_bot_token, telegram_chat_id } = req.body;
     if (!telegram_bot_token || !telegram_chat_id) return res.status(400).json({ error: 'Token e Chat ID obrigatórios' });
-    const msg = '🦅 <b>Teste Águia Tracker</b>\n\n✅ Notificações Telegram configuradas com sucesso!\nVocê receberá alertas de vendas aqui.';
+    const msg = '🦅 <b>Teste Águia Ads</b>\n\n✅ Notificações Telegram configuradas com sucesso!\nVocê receberá alertas de vendas aqui.';
     await sendTelegram(telegram_bot_token, telegram_chat_id, msg);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/notifications/test-email', auth, async (req, res) => {
+  try {
+    const { email_to, email_smtp_host, email_smtp_port, email_smtp_user, email_smtp_pass } = req.body;
+    if (!email_to || !email_smtp_user || !email_smtp_pass) return res.status(400).json({ error: 'Preencha todos os campos de email' });
+    const html = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;background:#0d0d0d;color:#fff;padding:24px;border-radius:12px;border:1px solid #f5a623">
+      <div style="text-align:center;margin-bottom:16px"><span style="font-size:40px">🦅</span><h2 style="color:#f5a623;margin:8px 0">Teste Águia Ads</h2></div>
+      <p style="text-align:center;font-size:14px;color:#ccc">✅ Notificações por email configuradas com sucesso!<br>Você receberá alertas de vendas neste email.</p>
+      <div style="text-align:center;margin-top:16px;font-size:11px;color:#888">Águia Ads — Sistema de Rastreamento</div></div>`;
+    await sendEmail({ email_to, email_smtp_host: email_smtp_host || 'smtp.gmail.com', email_smtp_port: email_smtp_port || 587, email_smtp_user, email_smtp_pass }, '🦅 Teste Águia Ads — Email Configurado!', html);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -469,7 +523,7 @@ app.post('/api/notifications/test-telegram', auth, async (req, res) => {
 
 app.get('/api/script/:tagId', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const script = `<!-- Águia Tracker - Tag: ${req.params.tagId} -->
+  const script = `<!-- Águia Ads - Tag: ${req.params.tagId} -->
 <script>
 (function(){
   var ag_id="${req.params.tagId}";
@@ -500,7 +554,7 @@ app.get('/api/script/:tagId', (req, res) => {
 
 app.get('/manifest.json', (req, res) => {
   res.json({
-    name: 'Águia Tracker',
+    name: 'Águia Ads',
     short_name: 'Águia',
     description: 'Sistema de rastreamento profissional para afiliados',
     start_url: '/',
@@ -558,7 +612,7 @@ app.get('*', (req, res) => {
 
 initDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Águia Tracker rodando em http://localhost:${PORT}`);
+    console.log(`Águia Ads rodando em http://localhost:${PORT}`);
     console.log(`Dashboard: http://localhost:${PORT}`);
     console.log(`Tracking endpoint: http://localhost:${PORT}/t/{tagId}`);
     console.log(`Postback endpoint: http://localhost:${PORT}/postback/{tagId}`);

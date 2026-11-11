@@ -1,11 +1,11 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Águia Tracker</title>
+<title>Águia Ads</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#f5a623">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Águia Tracker">
+<meta name="apple-mobile-web-app-title" content="Águia Ads">
 <link rel="apple-touch-icon" href="/eagle.webp">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
 <style>
@@ -234,7 +234,7 @@ tr:last-child td{border-bottom:none}
 <div class="sbo" onclick="document.querySelector('.sb').classList.remove('open');this.classList.remove('open')"></div>
 
 <nav class="sb" id="sidebar">
-  <div class="sb-logo"><div style="width:38px;height:38px;min-width:38px;flex-shrink:0"><img src="/eagle.webp" alt="Águia" style="width:38px;height:38px;object-fit:contain;border-radius:8px"></div><span>Águia<span class="ac">Tracker</span></span>
+  <div class="sb-logo"><div style="width:38px;height:38px;min-width:38px;flex-shrink:0"><img src="/eagle.webp" alt="Águia" style="width:38px;height:38px;object-fit:contain;border-radius:8px"></div><span>Águia<span class="ac">Ads</span></span>
   <div id="lang-btns" style="display:flex;gap:2px;margin-left:auto"><button class="btn gh" style="padding:2px 8px;font-size:10px;border-radius:5px;font-weight:700" onclick="setLang('pt')">PT</button><button class="btn gh" style="padding:2px 8px;font-size:10px;border-radius:5px;font-weight:700" onclick="setLang('en')">EN</button><button class="btn gh" style="padding:2px 8px;font-size:10px;border-radius:5px;font-weight:700" onclick="setLang('es')">ES</button></div></div>
   <div class="sb-section">
     <div class="ni act" data-p="home" onclick="go('home')"><div class="ic c1"><span class="ms">home</span></div>Home</div>
@@ -258,7 +258,8 @@ tr:last-child td{border-bottom:none}
     <div class="ni" onclick="toggleSub(this)"><div class="ic c7"><span class="ms">notifications</span></div>Notificações<span class="ms arr">expand_more</span></div>
     <div class="sub"><div class="ni" data-p="notif-link" onclick="go('notif-link')"><span class="ms" style="font-size:16px;margin-right:4px">link</span>Link de Notificação</div>
     <div class="ni" data-p="notif-list" onclick="go('notif-list')"><span class="ms" style="font-size:16px;margin-right:4px">attach_money</span>Lista de Notificações</div>
-    <div class="ni" data-p="telegram-config" onclick="go('telegram-config')"><span class="ms" style="font-size:16px;margin-right:4px">send</span>Telegram</div></div>
+    <div class="ni" data-p="telegram-config" onclick="go('telegram-config')"><span class="ms" style="font-size:16px;margin-right:4px">send</span>Telegram</div>
+    <div class="ni" data-p="email-config" onclick="go('email-config')"><span class="ms" style="font-size:16px;margin-right:4px">email</span>Email</div></div>
     <div class="ni" onclick="toggleSub(this)"><div class="ic c5"><span class="ms">shopping_cart</span></div>Checkout<span class="ms arr">expand_more</span></div>
     <div class="sub"><div class="ni" data-p="ck-link" onclick="go('ck-link')"><span class="ms" style="font-size:16px;margin-right:4px">link</span>Link de Checkout</div>
     <div class="ni" data-p="ck-list" onclick="go('ck-list')"><span class="ms" style="font-size:16px;margin-right:4px">shopping_bag</span>Lista de Checkouts</div></div>
@@ -608,6 +609,44 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+<div id="p-email-config" hidden>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:var(--fg2)">email</span><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Notificações › Email</div><h1>Configurar Email</h1><div class="sub-t">Receba notificações de vendas em tempo real por email</div></div></div></div>
+  <div class="sc" style="max-width:600px">
+    <h2 style="margin-bottom:16px"><span class="ms" style="font-size:18px">mail</span> Configuração SMTP</h2>
+    <p style="color:var(--fg2);font-size:13px;margin-bottom:16px;line-height:1.6">Para receber notificações por email, configure seu servidor SMTP:</p>
+    <ol style="color:var(--fg2);font-size:13px;margin-bottom:20px;padding-left:20px;line-height:2">
+      <li>Use o Gmail: ative a <strong>Verificação em 2 etapas</strong> na sua conta Google</li>
+      <li>Em <strong>Senhas de app</strong>, gere uma senha para "Correio"</li>
+      <li>Use seu email como "Usuário SMTP" e a senha gerada como "Senha SMTP"</li>
+      <li>Ou use outro provedor SMTP (Outlook, Yahoo, etc.)</li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Email para receber notificações</label>
+      <input type="email" id="em-to" placeholder="seu@email.com" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
+      <div style="display:grid;grid-template-columns:1fr 100px;gap:12px">
+        <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Servidor SMTP</label>
+        <input type="text" id="em-host" placeholder="smtp.gmail.com" value="smtp.gmail.com" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
+        <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Porta</label>
+        <input type="number" id="em-port" placeholder="587" value="587" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
+      </div>
+      <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Usuário SMTP (seu email)</label>
+      <input type="text" id="em-user" placeholder="seu@gmail.com" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
+      <div><label style="font-size:12px;font-weight:600;color:var(--fg2);display:block;margin-bottom:4px">Senha SMTP (Senha de App)</label>
+      <input type="password" id="em-pass" placeholder="xxxx xxxx xxxx xxxx" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--fg);font-size:13px"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--fg2)">
+          <input type="checkbox" id="em-enabled" style="accent-color:var(--accent)"> Ativar notificações por Email
+        </label>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn" onclick="saveEmailSettings()">Salvar Configurações</button>
+        <button class="btn gh" onclick="testEmail()">Enviar Teste</button>
+      </div>
+      <div id="em-status" style="font-size:12px;margin-top:4px"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ CHECKOUT ══════════ -->
 <div id="p-ck-link" hidden>
   <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:var(--fg2)">toc</span><div><div style="font-size:12px;color:var(--fg3);margin-bottom:2px">Checkout › Link de Checkout</div><h1>Link de Checkout</h1><div class="sub-t">Aqui você visualiza todos os seus Link de Checkout</div></div></div>
@@ -701,8 +740,8 @@ tr:last-child td{border-bottom:none}
 <!-- LOGIN SCREEN -->
 <div id="login-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center">
 <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:380px;max-width:90vw;text-align:center">
-  <div style="width:80px;height:80px;margin:0 auto 16px"><img src="/eagle.webp" alt="Águia Tracker" style="width:100%;height:100%;object-fit:contain"></div>
-  <h1 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px">Águia <span style="color:var(--accent)">Tracker</span></h1>
+  <div style="width:80px;height:80px;margin:0 auto 16px"><img src="/eagle.webp" alt="Águia Ads" style="width:100%;height:100%;object-fit:contain"></div>
+  <h1 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px">Águia <span style="color:var(--accent)">Ads</span></h1>
   <p style="color:var(--fg2);font-size:13px;margin-bottom:24px">Sistema de rastreamento profissional</p>
   <div id="login-form">
     <input id="auth-email" type="email" placeholder="Email" style="width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--fg);font-size:14px;margin-bottom:10px;outline:none">
@@ -818,7 +857,7 @@ document.getElementById('p-'+p).hidden=false;
 document.querySelectorAll('.ni[data-p]').forEach(n=>n.classList.toggle('act',n.dataset.p===p));
 document.querySelector('.ni[data-p="home"]').classList.toggle('act',p==='home');
 document.querySelector('.sb').classList.remove('open');document.querySelector('.sbo').classList.remove('open');
-if(p==='financial'){populateFinFilters();rFin()}if(p==='trackers')rTk();if(p==='projects')rPj();if(p==='tags')rTags();if(p==='tutorial')renderTutorial();if(p==='telegram-config')loadTelegramSettings();
+if(p==='financial'){populateFinFilters();rFin()}if(p==='trackers')rTk();if(p==='projects')rPj();if(p==='tags')rTags();if(p==='tutorial')renderTutorial();if(p==='telegram-config')loadTelegramSettings();if(p==='email-config')loadEmailSettings();
 if(p==='notif-list')rNList();if(p==='ck-list')rCkList();if(p==='products')rProd();if(p==='taxes')rTax();
 if(p==='fees')rFees();if(p==='domains')rDom();if(p==='apikeys')rAk();if(p==='vturb')rVsl();if(p==='producer-url')rPU();
 if(p==='gads')rAds('google');if(p==='meta')rAds('meta');if(p==='newsbreak')rAds('newsbreak');if(p==='taboola')rAds('taboola');if(p==='tiktok')rAds('tiktok');if(p==='mgid')rAds('mgid');if(p==='revcontent')rAds('revcontent');if(p==='accounts'){rAccGrid();rAccounts()}
@@ -832,7 +871,7 @@ function setVTab(el){el.parentElement.querySelectorAll('.vtab').forEach(t=>t.cla
 function setTbtn(el){el.parentElement.querySelectorAll('.tbtn').forEach(t=>t.classList.remove('act'));el.classList.add('act')}
 function filt(inp,id){const q=inp.value.toLowerCase();document.querySelectorAll('#'+id+' tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q)?'':'none')}
 function cpTxt(t){try{navigator.clipboard.writeText(t);showToast('Copiado!')}catch(e){}}
-function getTagScriptCode(id){const base=location.origin;return '<!-- Águia Tracker -->\n<scri'+'pt>\n(function(){\n  var ag_id="'+id+'";\n  var ag_url="'+base+'/t/"+ag_id;\n  var vid=localStorage.getItem("ag_vid")||"v_"+Math.random().toString(36).substr(2,12);\n  localStorage.setItem("ag_vid",vid);\n  var sid="s_"+Math.random().toString(36).substr(2,8);\n  var params=new URLSearchParams(window.location.search);\n  function send(e,extra){\n    var u=ag_url+"?e="+e+"&vid="+vid+"&sid="+sid+"&url="+encodeURIComponent(location.href)+"&ref="+encodeURIComponent(document.referrer);\n    ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(function(k){\n      var v=params.get(k);if(v)u+="&"+k+"="+encodeURIComponent(v);\n    });\n    if(extra)u+="&"+extra;\n    new Image().src=u;\n  }\n  send("pageview");\n  document.addEventListener("click",function(ev){\n    var a=ev.target.closest("a");\n    if(a&&a.href)send("click","target="+encodeURIComponent(a.href));\n  });\n  window.aguia={track:function(e,data){var x="";if(data)Object.keys(data).forEach(function(k){x+="&"+k+"="+encodeURIComponent(data[k])});send(e,x)}};\n})();\n</scri'+'pt>'}
+function getTagScriptCode(id){const base=location.origin;return '<!-- Águia Ads -->\n<scri'+'pt>\n(function(){\n  var ag_id="'+id+'";\n  var ag_url="'+base+'/t/"+ag_id;\n  var vid=localStorage.getItem("ag_vid")||"v_"+Math.random().toString(36).substr(2,12);\n  localStorage.setItem("ag_vid",vid);\n  var sid="s_"+Math.random().toString(36).substr(2,8);\n  var params=new URLSearchParams(window.location.search);\n  function send(e,extra){\n    var u=ag_url+"?e="+e+"&vid="+vid+"&sid="+sid+"&url="+encodeURIComponent(location.href)+"&ref="+encodeURIComponent(document.referrer);\n    ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(function(k){\n      var v=params.get(k);if(v)u+="&"+k+"="+encodeURIComponent(v);\n    });\n    if(extra)u+="&"+extra;\n    new Image().src=u;\n  }\n  send("pageview");\n  document.addEventListener("click",function(ev){\n    var a=ev.target.closest("a");\n    if(a&&a.href)send("click","target="+encodeURIComponent(a.href));\n  });\n  window.aguia={track:function(e,data){var x="";if(data)Object.keys(data).forEach(function(k){x+="&"+k+"="+encodeURIComponent(data[k])});send(e,x)}};\n})();\n</scri'+'pt>'}
 function cpTagScript(id){cpTxt(getTagScriptCode(id));showToast('Código copiado!')}
 function showInstallScript(id){const t=S.tags.find(x=>x.id===id);if(!t)return;
 const ov=document.getElementById('modal-ov');
@@ -1480,8 +1519,8 @@ const AI_ANSWERS={
 'default':'Obrigado pela sua pergunta! Para informações detalhadas, acesse nossa Central de Ajuda clicando em "Central de Ajuda" na barra superior, ou entre em contato pelo WhatsApp usando o botão "Precisa de Ajuda?" no menu lateral.'
 };
 function openAIChat(){
-openModal('Suporte IA — Águia Tracker','<div style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="ms" style="font-size:24px;color:var(--accent)">auto_awesome</span><div><div style="font-weight:700;font-size:14px">Assistente IA</div><div style="font-size:11px;color:var(--fg3)">Online agora</div></div></div></div>'+
-'<div id="ai-chat-log" class="ai-chat"><div class="ai-msg bot">Olá! 👋 Sou o assistente IA da Águia Tracker. Como posso ajudar? Alguns exemplos:<br>• Como instalar a TAG?<br>• Como criar um projeto?<br>• Como conectar contas de anúncio?<br>• O que é o Economizômetro?</div></div>'+
+openModal('Suporte IA — Águia Ads','<div style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="ms" style="font-size:24px;color:var(--accent)">auto_awesome</span><div><div style="font-weight:700;font-size:14px">Assistente IA</div><div style="font-size:11px;color:var(--fg3)">Online agora</div></div></div></div>'+
+'<div id="ai-chat-log" class="ai-chat"><div class="ai-msg bot">Olá! 👋 Sou o assistente IA da Águia Ads. Como posso ajudar? Alguns exemplos:<br>• Como instalar a TAG?<br>• Como criar um projeto?<br>• Como conectar contas de anúncio?<br>• O que é o Economizômetro?</div></div>'+
 '<div style="display:flex;gap:8px;margin-top:12px"><input id="ai-input" style="flex:1;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--fg);font-size:13px" placeholder="Digite sua pergunta..." onkeydown="if(event.key===\'Enter\')sendAI()"><button class="btn" onclick="sendAI()" style="padding:10px 16px"><span class="ms" style="font-size:18px">send</span></button></div>')}
 function sendAI(){const inp=document.getElementById('ai-input');const q=inp.value.trim();if(!q)return;
 const log=document.getElementById('ai-chat-log');
@@ -1495,23 +1534,23 @@ document.addEventListener('click',function(e){document.querySelectorAll('.user-d
 
 // TUTORIAL
 const TUT_DATA=[
-{cat:'Bem-vindo à Águia Tracker',items:[
-{t:'Acessando a Águia Tracker',b:'<p>Para acessar a Águia Tracker, basta fazer login com sua conta no painel principal. Ao entrar, você será direcionado ao <strong>Dashboard</strong>, que é sua central de controle.</p><p>No Dashboard você encontra:</p><ul><li><strong>KPIs de Visitas e Cliques</strong> — dados em tempo real das suas campanhas</li><li><strong>Trackers Acessados</strong> — tabela com seus trackers mais recentes</li><li><strong>Economizômetro</strong> — valor estimado de economia pelo bloqueio automático de IPs</li><li><strong>Campanhas</strong> — resumo de performance com ROI</li></ul>'},
+{cat:'Bem-vindo à Águia Ads',items:[
+{t:'Acessando a Águia Ads',b:'<p>Para acessar a Águia Ads, basta fazer login com sua conta no painel principal. Ao entrar, você será direcionado ao <strong>Dashboard</strong>, que é sua central de controle.</p><p>No Dashboard você encontra:</p><ul><li><strong>KPIs de Visitas e Cliques</strong> — dados em tempo real das suas campanhas</li><li><strong>Trackers Acessados</strong> — tabela com seus trackers mais recentes</li><li><strong>Economizômetro</strong> — valor estimado de economia pelo bloqueio automático de IPs</li><li><strong>Campanhas</strong> — resumo de performance com ROI</li></ul>'},
 {t:'Informações da Conta — Plano e Limites',b:'<p>Cada conta possui limites definidos pelo plano contratado. Para verificar seu plano atual, clique no ícone do usuário no canto superior direito.</p><p>Limites comuns incluem:</p><ul><li>Quantidade de TAGs ativas</li><li>Quantidade de Trackers</li><li>Projetos simultâneos</li><li>Volume de visitas mensais</li></ul>'},
 {t:'Suporte Técnico',b:'<p>Se precisar de ajuda, você tem duas opções:</p><ul><li><strong>Suporte IA</strong> — clique em "Perguntar para a IA" na barra superior para dúvidas rápidas</li><li><strong>WhatsApp</strong> — use o botão "Precisa de Ajuda?" na parte inferior do menu lateral para falar com nossa equipe</li></ul>'}
 ]},
 {cat:'Comece Aqui',items:[
-{t:'Configuração Inicial',b:'<p>Siga esses passos para configurar sua Águia Tracker do zero:</p><ol><li><strong>Crie seu primeiro Projeto</strong> — vá em <em>Projetos</em> e clique em <em>NOVO</em></li><li><strong>Crie uma TAG Águia</strong> — vá em <em>TAG Águia</em>, clique em <em>Criar TAG Águia</em>, dê um nome, selecione o funil e a rede de anúncios</li><li><strong>Instale o script na sua página</strong> — clique no nome da TAG, copie o código e cole antes do &lt;/head&gt; da sua página de vendas</li><li><strong>Conecte suas contas de anúncios</strong> — vá em <em>Integrações › Central de Contas</em> e conecte Google Ads, Meta Ads etc.</li><li><strong>Configure o Checkout</strong> — em <em>Checkout › Link de Checkout</em>, vincule sua plataforma de vendas (BuyGoods, ClickBank, etc.)</li></ol><p>Após esses passos, a Águia começará a rastrear visitas, cliques e conversões automaticamente.</p>'}
+{t:'Configuração Inicial',b:'<p>Siga esses passos para configurar sua Águia Ads do zero:</p><ol><li><strong>Crie seu primeiro Projeto</strong> — vá em <em>Projetos</em> e clique em <em>NOVO</em></li><li><strong>Crie uma TAG Águia</strong> — vá em <em>TAG Águia</em>, clique em <em>Criar TAG Águia</em>, dê um nome, selecione o funil e a rede de anúncios</li><li><strong>Instale o script na sua página</strong> — clique no nome da TAG, copie o código e cole antes do &lt;/head&gt; da sua página de vendas</li><li><strong>Conecte suas contas de anúncios</strong> — vá em <em>Integrações › Central de Contas</em> e conecte Google Ads, Meta Ads etc.</li><li><strong>Configure o Checkout</strong> — em <em>Checkout › Link de Checkout</em>, vincule sua plataforma de vendas (BuyGoods, ClickBank, etc.)</li></ol><p>Após esses passos, a Águia começará a rastrear visitas, cliques e conversões automaticamente.</p>'}
 ]},
 {cat:'Configurações do Sistema',items:[
-{t:'Aplicativo',b:'<p>A Águia Tracker pode ser acessada pelo navegador em qualquer dispositivo. Para uma experiência semelhante a um app nativo, adicione à tela inicial do seu celular:</p><ul><li><strong>Android:</strong> No Chrome, toque nos 3 pontos › "Adicionar à tela inicial"</li><li><strong>iPhone:</strong> No Safari, toque no ícone de compartilhar › "Adicionar à Tela de Início"</li></ul>'},
+{t:'Aplicativo',b:'<p>A Águia Ads pode ser acessada pelo navegador em qualquer dispositivo. Para uma experiência semelhante a um app nativo, adicione à tela inicial do seu celular:</p><ul><li><strong>Android:</strong> No Chrome, toque nos 3 pontos › "Adicionar à tela inicial"</li><li><strong>iPhone:</strong> No Safari, toque no ícone de compartilhar › "Adicionar à Tela de Início"</li></ul>'},
 {t:'Telegram',b:'<p>Receba notificações de vendas em tempo real pelo Telegram. Para configurar:</p><ol><li>Vá em <em>Notificações › Link de Notificação</em></li><li>Crie um novo link de notificação</li><li>Selecione "Telegram" como canal</li><li>Siga as instruções para conectar seu bot</li></ol>'},
 {t:'Troca de Senha',b:'<p>Para trocar sua senha, clique no ícone do usuário no canto superior direito e selecione "Alterar Senha". Escolha uma senha forte com no mínimo 8 caracteres.</p>'},
 {t:'Autenticação de Duas Etapas',b:'<p>Reforce a segurança da sua conta ativando a autenticação em duas etapas (2FA):</p><ol><li>Acesse as configurações da conta</li><li>Ative "Autenticação de duas etapas"</li><li>Escaneie o QR Code com um app autenticador (Google Authenticator, Authy, etc.)</li><li>Insira o código gerado para confirmar</li></ol>'},
 {t:'Alterar Time Zone',b:'<p>O fuso horário define como os dados de visitas, cliques e vendas são exibidos nos relatórios. Para alterar:</p><ol><li>Acesse as configurações da conta</li><li>Selecione seu fuso horário (ex: America/Sao_Paulo)</li><li>Salve as alterações</li></ol><p><strong>Importante:</strong> Alterar o fuso não modifica dados já registrados, apenas afeta a exibição de novos dados.</p>'}
 ]},
 {cat:'Estrutura Águia',items:[
-{t:'Visão Geral',b:'<p>A Águia Tracker é organizada em uma hierarquia simples:</p><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0"><strong>Projeto</strong> → contém várias <strong>TAGs Águia</strong> → cada TAG rastreia uma <strong>página/funil</strong></div><ul><li><strong>Projetos:</strong> Agrupam suas TAGs por produto, nicho ou campanha</li><li><strong>TAGs Águia:</strong> São os rastreadores — cada TAG é instalada em uma página e coleta dados de visitas, cliques, conversões e fuga</li><li><strong>Dashboard Financeiro:</strong> Consolida todos os dados financeiros (faturamento, custos, ROI, ROAS)</li></ul>'}
+{t:'Visão Geral',b:'<p>A Águia Ads é organizada em uma hierarquia simples:</p><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0"><strong>Projeto</strong> → contém várias <strong>TAGs Águia</strong> → cada TAG rastreia uma <strong>página/funil</strong></div><ul><li><strong>Projetos:</strong> Agrupam suas TAGs por produto, nicho ou campanha</li><li><strong>TAGs Águia:</strong> São os rastreadores — cada TAG é instalada em uma página e coleta dados de visitas, cliques, conversões e fuga</li><li><strong>Dashboard Financeiro:</strong> Consolida todos os dados financeiros (faturamento, custos, ROI, ROAS)</li></ul>'}
 ]},
 {cat:'Gerenciador de Anúncios',items:[
 {t:'Visão Geral',b:'<p>O Gerenciador de Anúncios mostra os dados das suas campanhas diretamente de cada rede de anúncio conectada. Redes disponíveis:</p><ul><li><strong>Google Ads</strong></li><li><strong>Meta Ads</strong> (Facebook/Instagram)</li><li><strong>NewsBreak</strong></li><li><strong>Taboola</strong></li><li><strong>TikTok Ads</strong></li><li><strong>MGID</strong></li><li><strong>RevContent</strong></li></ul><p>Para cada rede, você visualiza: impressões, cliques, custo, conversões e métricas de performance. Conecte suas contas em <em>Integrações › Central de Contas</em>.</p>'},
@@ -1527,10 +1566,10 @@ const TUT_DATA=[
 {cat:'Integrações',items:[
 {t:'Central de Contas',b:'<p>A <strong>Central de Contas</strong> é onde você conecta suas contas de anúncios às redes suportadas:</p><ol><li>Vá em <em>Integrações › Central de Contas</em></li><li>Clique na rede desejada (Google Ads, Meta Ads, etc.)</li><li>Autorize o acesso à sua conta</li><li>Selecione as contas de anúncio que deseja rastrear</li></ol><p>Uma vez conectada, os dados de campanhas aparecem automaticamente no <em>Gerenciador de Anúncios</em> e no <em>Dashboard Financeiro</em>.</p>'},
 {t:'VTurb',b:'<p>A integração com o <strong>VTurb</strong> permite rastrear a performance dos seus vídeos de vendas (VSLs):</p><ul><li>Taxa de reprodução</li><li>Tempo médio de visualização</li><li>Ponto de abandono</li><li>Correlação entre tempo de vídeo e conversão</li></ul><p>Conecte na aba <em>Integrações › VTurb</em> usando sua API Key do VTurb.</p>'},
-{t:'API Keys (Token)',b:'<p>As <strong>API Keys</strong> permitem integração programática com a Águia Tracker.</p><p>Use-as para:</p><ul><li>Enviar dados de conversão via API</li><li>Integrar com sistemas personalizados</li><li>Automações via webhook</li></ul><p>Gere suas chaves em <em>Integrações › API Keys</em>. Nunca compartilhe suas chaves com terceiros.</p>'}
+{t:'API Keys (Token)',b:'<p>As <strong>API Keys</strong> permitem integração programática com a Águia Ads.</p><p>Use-as para:</p><ul><li>Enviar dados de conversão via API</li><li>Integrar com sistemas personalizados</li><li>Automações via webhook</li></ul><p>Gere suas chaves em <em>Integrações › API Keys</em>. Nunca compartilhe suas chaves com terceiros.</p>'}
 ]},
 {cat:'Plataformas de Venda',items:[
-{t:'Visão Geral',b:'<p>A Águia Tracker suporta integração com as principais plataformas de venda do mercado de afiliados:</p><ul><li>BuyGoods</li><li>ClickBank</li><li>Digistore24</li><li>Hotmart</li><li>Kiwify</li><li>Entre outras</li></ul><p>A integração permite rastrear vendas, reembolsos e calcular métricas como CPA, ROAS e lucro automaticamente.</p>'},
+{t:'Visão Geral',b:'<p>A Águia Ads suporta integração com as principais plataformas de venda do mercado de afiliados:</p><ul><li>BuyGoods</li><li>ClickBank</li><li>Digistore24</li><li>Hotmart</li><li>Kiwify</li><li>Entre outras</li></ul><p>A integração permite rastrear vendas, reembolsos e calcular métricas como CPA, ROAS e lucro automaticamente.</p>'},
 {t:'Checkout',b:'<p>A seção de <strong>Checkout</strong> permite configurar como suas vendas são rastreadas:</p><ol><li>Vá em <em>Checkout › Link de Checkout</em></li><li>Crie um novo link de checkout</li><li>Selecione a plataforma de venda</li><li>Configure o postback ou webhook da plataforma</li></ol><p>Quando uma venda é realizada, a plataforma notifica a Águia, que registra a conversão automaticamente vinculada à visita original.</p>'}
 ]},
 {cat:'Analytics',items:[
@@ -1607,6 +1646,55 @@ async function testTelegram(){
       body:JSON.stringify({telegram_bot_token:token,telegram_chat_id:chatId})});
     if(r.ok){st.innerHTML='<span style="color:var(--green)">✅ Mensagem de teste enviada! Verifique seu Telegram.</span>';showToast('Teste enviado ao Telegram!')}
     else{st.innerHTML='<span style="color:var(--red)">❌ Erro ao enviar. Verifique Token e Chat ID.</span>'}
+  }catch(e){st.innerHTML='<span style="color:var(--red)">❌ Erro de conexão</span>'}
+}
+
+async function loadEmailSettings(){
+  try{
+    const r=await fetch('/api/notifications/settings',{credentials:'include'});
+    if(!r.ok)return;
+    const s=await r.json();
+    document.getElementById('em-to').value=s.email_to||'';
+    document.getElementById('em-host').value=s.email_smtp_host||'smtp.gmail.com';
+    document.getElementById('em-port').value=s.email_smtp_port||587;
+    document.getElementById('em-user').value=s.email_smtp_user||'';
+    document.getElementById('em-pass').value=s.email_smtp_pass||'';
+    document.getElementById('em-enabled').checked=!!s.email_enabled;
+  }catch(e){}
+}
+async function saveEmailSettings(){
+  const st=document.getElementById('em-status');
+  try{
+    const r=await fetch('/api/notifications/settings',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email_to:document.getElementById('em-to').value.trim(),
+        email_smtp_host:document.getElementById('em-host').value.trim(),
+        email_smtp_port:parseInt(document.getElementById('em-port').value)||587,
+        email_smtp_user:document.getElementById('em-user').value.trim(),
+        email_smtp_pass:document.getElementById('em-pass').value.trim(),
+        email_enabled:document.getElementById('em-enabled').checked,
+        notify_on_sale:true
+      })});
+    if(r.ok){st.innerHTML='<span style="color:var(--green)">✅ Configurações de email salvas!</span>';showToast('Configurações de Email salvas!')}
+    else{st.innerHTML='<span style="color:var(--red)">❌ Erro ao salvar</span>'}
+  }catch(e){st.innerHTML='<span style="color:var(--red)">❌ Erro de conexão</span>'}
+}
+async function testEmail(){
+  const to=document.getElementById('em-to').value.trim(),user=document.getElementById('em-user').value.trim(),pass=document.getElementById('em-pass').value.trim();
+  const st=document.getElementById('em-status');
+  if(!to||!user||!pass){st.innerHTML='<span style="color:var(--red)">Preencha Email, Usuário SMTP e Senha</span>';return}
+  st.innerHTML='<span style="color:var(--fg2)">Enviando teste...</span>';
+  try{
+    const r=await fetch('/api/notifications/test-email',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email_to:to,
+        email_smtp_host:document.getElementById('em-host').value.trim()||'smtp.gmail.com',
+        email_smtp_port:parseInt(document.getElementById('em-port').value)||587,
+        email_smtp_user:user,
+        email_smtp_pass:pass
+      })});
+    if(r.ok){st.innerHTML='<span style="color:var(--green)">✅ Email de teste enviado! Verifique sua caixa de entrada.</span>';showToast('Teste de email enviado!')}
+    else{const d=await r.json().catch(()=>({}));st.innerHTML='<span style="color:var(--red)">❌ Erro: '+(d.error||'Verifique as configurações SMTP')+'</span>'}
   }catch(e){st.innerHTML='<span style="color:var(--red)">❌ Erro de conexão</span>'}
 }
 
