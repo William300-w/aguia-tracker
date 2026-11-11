@@ -763,6 +763,12 @@ tr:last-child td{border-bottom:none}
         <div style="margin-top:4px;display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(245,166,35,.15);color:var(--accent)">Plano Pro</div>
       </div>
     </div>
+    <div id="pwa-install-section" style="background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(245,166,35,.04));border:1px solid var(--accent);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
+      <div style="font-size:28px;margin-bottom:6px">🦅</div>
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--fg)">Instalar Águia Ads</div>
+      <div style="font-size:12px;color:var(--fg2);margin-bottom:12px">Receba notificações e acesse mais rápido</div>
+      <button id="pwa-install-btn" onclick="installPWA()" style="background:var(--accent);color:#0c0c0f;border:none;padding:10px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer">Instalar Aplicativo</button>
+    </div>
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
       <div class="mob-menu-item" onclick="go('home')"><span class="ms">home</span> Início</div>
       <div class="mob-menu-item" onclick="go('financial')"><span class="ms">bar_chart</span> Dashboard Financeiro</div>
@@ -809,12 +815,6 @@ tr:last-child td{border-bottom:none}
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:6px 0;margin-bottom:12px">
       <div class="mob-menu-item" onclick="go('tutorial')"><span class="ms" style="color:var(--accent)">school</span> Central de Ajuda</div>
       <div class="mob-menu-item" onclick="toggleTheme()"><span class="ms">light_mode</span> <span>Alternar Tema</span></div>
-    </div>
-    <div id="pwa-install-section" style="background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(245,166,35,.04));border:1px solid var(--accent);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
-      <div style="font-size:28px;margin-bottom:6px">🦅</div>
-      <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--fg)">Instalar Águia Ads</div>
-      <div style="font-size:12px;color:var(--fg2);margin-bottom:12px">Receba notificações e acesse mais rápido</div>
-      <button id="pwa-install-btn" onclick="installPWA()" style="background:var(--accent);color:#0c0c0f;border:none;padding:10px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer">Instalar Aplicativo</button>
     </div>
     <div style="padding:8px 0">
       <div class="mob-menu-item" onclick="showToast('Sessão encerrada!')" style="color:var(--red)"><span class="ms" style="color:var(--red)">logout</span> Sair da Conta</div>
