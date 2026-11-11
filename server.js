@@ -665,22 +665,26 @@ app.get('/api/script/:tagId', (req, res) => {
 
 app.get('/manifest.json', (req, res) => {
   res.set('Cache-Control', 'no-cache');
-  res.json({
+  res.set('Content-Type', 'application/manifest+json');
+  res.send(JSON.stringify({
+    id: '/',
     name: 'Águia Ads',
     short_name: 'Águia',
     description: 'Sistema de rastreamento profissional para afiliados',
     start_url: '/',
+    scope: '/',
     display: 'standalone',
     background_color: '#0d0d0d',
     theme_color: '#f5a623',
     orientation: 'portrait-primary',
+    prefer_related_applications: false,
     icons: [
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
       { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
     ]
-  });
+  }));
 });
 
 app.get('/sw.js', (req, res) => {
