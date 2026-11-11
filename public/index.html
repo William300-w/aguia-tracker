@@ -299,7 +299,9 @@ tr:last-child td{border-bottom:none}
 <div class="mn">
 <!-- TOP NAVBAR -->
 <div style="display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-bottom:16px;padding:6px 0;flex-wrap:wrap">
+  <button id="sound-btn" class="btn gh" style="padding:5px 8px;border-radius:8px" onclick="toggleSaleSound()" title="Som de venda"><span class="ms" style="font-size:20px">volume_up</span></button>
   <button class="btn gh" style="padding:5px 8px;border-radius:8px" onclick="openNotifPanel()"><span class="ms" style="font-size:20px">notifications</span></button>
+  <audio id="sale-sound" preload="auto" src="/som_da_alegria.mp3"></audio>
   <button class="btn gh" style="padding:5px 14px;font-size:12px;border-radius:8px" onclick="go('home')"><span class="ms" style="font-size:16px">home_work</span> Voltar ao Hub</button>
   <button id="theme-btn" class="btn gh" style="padding:5px 8px;border-radius:8px" onclick="toggleTheme()"><span class="ms" style="font-size:20px">light_mode</span></button>
   <button class="btn gh" style="padding:5px 14px;font-size:12px;border-radius:8px" onclick="openAIChat()"><span class="ms" style="font-size:16px">auto_awesome</span> Perguntar para a IA</button>
@@ -820,8 +822,36 @@ allKeys.forEach(k=>{if(!S[k])S[k]=[]});
 if(!S.campaigns.length)seedLocal();
 sv();
 rKpi();rRat();rEco();rFin();go('home');
-// Refresh dashboard every 30s
-setInterval(async()=>{try{S.dashboardData=await api('/api/dashboard?period=today');rKpi()}catch(e){}},30000)}
+// Sale sound notification
+let saleSoundEnabled = true;
+let lastConversionCount = -1;
+try { saleSoundEnabled = localStorage.getItem('aguia_sound') !== 'off'; } catch(e) {}
+function updateSoundBtn() {
+  const btn = document.getElementById('sound-btn');
+  if (btn) btn.querySelector('.ms').textContent = saleSoundEnabled ? 'volume_up' : 'volume_off';
+}
+function toggleSaleSound() {
+  saleSoundEnabled = !saleSoundEnabled;
+  try { localStorage.setItem('aguia_sound', saleSoundEnabled ? 'on' : 'off'); } catch(e) {}
+  updateSoundBtn();
+  showToast(saleSoundEnabled ? 'Som de venda ativado' : 'Som de venda desativado');
+}
+function playSaleSound() {
+  if (!saleSoundEnabled) return;
+  const audio = document.getElementById('sale-sound');
+  if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+}
+function checkNewSales(data) {
+  const conv = +(data?.conversions || 0);
+  if (lastConversionCount === -1) { lastConversionCount = conv; return; }
+  if (conv > lastConversionCount) { playSaleSound(); showToast('Nova venda detectada! 🦅'); }
+  lastConversionCount = conv;
+}
+updateSoundBtn();
+if (S.dashboardData) lastConversionCount = +(S.dashboardData.conversions || 0);
+
+// Refresh dashboard every 15s
+setInterval(async()=>{try{S.dashboardData=await api('/api/dashboard?period=today');checkNewSales(S.dashboardData);rKpi()}catch(e){}},15000)}
 
 function seedLocal(){
   S.campaigns=[{id:'c1',name:'GlucoTrust-Search US',prodId:'o1',budget:150,clicks:342,conv:8,rev:1080,cost:456,status:'active'},
